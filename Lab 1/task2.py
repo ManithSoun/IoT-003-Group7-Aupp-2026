@@ -2,16 +2,24 @@ import network
 import urequests
 import time
 
-# ===== WIFI =====
+# ======================
+# WIFI CONFIG
+# ======================
 SSID = "Robotic WIFI"
 PASSWORD = "rbtWIFI@2025"
 
-# ===== TELEGRAM =====
+# ======================
+# TELEGRAM CONFIG
+# ======================
 BOT_TOKEN = "8378245115:AAEwSFBK-Noxo38CT-NS8kE4p8Ht9qMkuBA"
-CHAT_ID = "-5280207636"
-URL = "https://api.telegram.org/bot{}/getUpdates".format(BOT_TOKEN)
+CHAT_ID = "-5280207636"  
 
-# ===== WIFI CONNECT =====
+SEND_URL = "https://api.telegram.org/bot{}/sendMessage".format(BOT_TOKEN)
+GET_URL  = "https://api.telegram.org/bot{}/getUpdates".format(BOT_TOKEN)
+
+# ======================
+# WIFI CONNECT
+# ======================
 wifi = network.WLAN(network.STA_IF)
 wifi.active(True)
 wifi.connect(SSID, PASSWORD)
@@ -21,19 +29,41 @@ while not wifi.isconnected():
 
 print("WiFi connected")
 
+# ======================
+# SEND MESSAGE FUNCTION
+# ======================
+def send_message(text):
+    payload = {
+        "chat_id": CHAT_ID,
+        "text": text
+    }
+    r = urequests.post(SEND_URL, json=payload)
+    r.close()
+
+# Use send_message() ONCE (Task 2 requirement)
+send_message("Task 2: ESP32 connected to Telegram")
+
+# ======================
+# MAIN LOOP (RECEIVE & PRINT)
+# ======================
 last_update_id = 0
 
-# ===== MAIN LOOP =====
 while True:
     try:
-        r = urequests.get(URL + "?offset={}".format(last_update_id + 1))
+        url = GET_URL + "?offset={}".format(last_update_id + 1)
+        r = urequests.get(url)
         data = r.json()
         r.close()
 
-        for msg in data["result"]:
-            last_update_id = msg["update_id"]
-            text = msg["message"]["text"]
-            chat_id = msg["message"]["chat"]["id"]
+        for upd in data.get("result", []):
+            last_update_id = upd["update_id"]
+
+            msg = upd.get("message")
+            if not msg:
+                continue
+
+            text = msg.get("text", "")
+            chat_id = msg["chat"]["id"]
 
             if str(chat_id) == CHAT_ID:
                 print("Received from Telegram:")
