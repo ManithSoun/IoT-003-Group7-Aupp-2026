@@ -4,14 +4,15 @@
 
 - Read **DHT22** sensor data every **5 seconds**.
 - Print **temperature** and **humidity** values with **2 decimal places**.
-  ![Task 1](images/serial.png)
+  ![Task 1](/Lab%201/asset/task1.png)
 
 ## Task 2: Telegram Send
 
 - Implement the `send_message()` function.
 - Send a **test message** to the Telegram group.
 
-  ![Task 2](images/serial.png)
+  ![Task 2](/Lab%201/asset/task2result.png)
+  ![Task 2](/Lab%201/asset/task2telegram.png)
 
 ## Task 3: Bot Commands
 
@@ -21,7 +22,7 @@
   - **Relay state**
 - Implement `/on` and `/off` commands to control the relay.
 
-  ![Task 3](images/serial.png)
+  ![Task 3](/Lab%201/asset/task3.png)
 
 ## Task 4: Temperature Alert Logic
 
