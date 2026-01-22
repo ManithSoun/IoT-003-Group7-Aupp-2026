@@ -2,24 +2,18 @@ import network
 import urequests
 import time
 
-# ======================
 # WIFI CONFIG
-# ======================
 SSID = "Robotic WIFI"
 PASSWORD = "rbtWIFI@2025"
 
-# ======================
 # TELEGRAM CONFIG
-# ======================
 BOT_TOKEN = "8378245115:AAEwSFBK-Noxo38CT-NS8kE4p8Ht9qMkuBA"
 CHAT_ID = "-5280207636"  
 
 SEND_URL = "https://api.telegram.org/bot{}/sendMessage".format(BOT_TOKEN)
 GET_URL  = "https://api.telegram.org/bot{}/getUpdates".format(BOT_TOKEN)
 
-# ======================
 # WIFI CONNECT
-# ======================
 wifi = network.WLAN(network.STA_IF)
 wifi.active(True)
 wifi.connect(SSID, PASSWORD)
@@ -29,9 +23,7 @@ while not wifi.isconnected():
 
 print("WiFi connected")
 
-# ======================
 # SEND MESSAGE FUNCTION
-# ======================
 def send_message(text):
     payload = {
         "chat_id": CHAT_ID,
@@ -43,9 +35,7 @@ def send_message(text):
 # Use send_message() ONCE (Task 2 requirement)
 send_message("Task 2: ESP32 connected to Telegram")
 
-# ======================
 # MAIN LOOP (RECEIVE & PRINT)
-# ======================
 last_update_id = 0
 
 while True:
