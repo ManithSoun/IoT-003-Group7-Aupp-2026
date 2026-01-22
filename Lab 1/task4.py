@@ -1,34 +1,29 @@
 import urequests
 import time
-import network
 from machine import Pin
 import dht
 
-# ======================
 # WIFI CONFIG
-# ======================
 SSID = "Robotic WIFI"
 PASSWORD = "rbtWIFI@2025"
 
-# ======================
 # TELEGRAM CONFIG
-# ======================
-BOT_TOKEN = "8378245115:AAEwSFBK-Noxo38CT-NS8kE4p8Ht9qMkuBA"
-CHAT_ID = "-5280207636"
+BOT_TOKEN = "bot_token"
+CHAT_ID = "chat_id"
 
 SEND_URL = "https://api.telegram.org/bot{}/sendMessage".format(BOT_TOKEN)
 GET_URL  = "https://api.telegram.org/bot{}/getUpdates".format(BOT_TOKEN)
 
-# ======================
-# HARDWARE SETUP
-# ======================
-sensor = dht.DHT22(Pin(4))  # DHT22 on D4
-relay = Pin(2, Pin.OUT)     # Relay on D2
+# HARDWARE
+sensor = dht.DHT22(Pin(4))
+relay = Pin(2, Pin.OUT)
 relay.off()
 
-# ======================
+# CONSTANTS
+TEMP_THRESHOLD = 30
+last_update_id = 0
+
 # WIFI CONNECT
-# ======================
 wifi = network.WLAN(network.STA_IF)
 wifi.active(True)
 wifi.connect(SSID, PASSWORD)
@@ -37,79 +32,73 @@ while not wifi.isconnected():
     time.sleep(1)
 
 print("WiFi connected")
+time.sleep(3) 
 
-# ======================
-# SEND MESSAGE FUNCTION
-# ======================
+# SEND MESSAGE
 def send_message(text):
-    payload = {"chat_id": CHAT_ID, "text": text}
+    payload = {
+        "chat_id": CHAT_ID,
+        "text": text
+    }
     r = urequests.post(SEND_URL, json=payload)
+    print("Telegram status:", r.status_code)
     r.close()
 
-# ======================
 # MAIN LOOP
-# ======================
-last_update_id = 0
-alerting = False  # Track high-temp alerts
-
 while True:
     try:
-        # -------- Telegram polling (commands only) --------
+        #READ SENSOR
+        sensor.measure()
+        temp = sensor.temperature()
+        hum = sensor.humidity()
+
+        print("Temp:", temp, "C | Hum:", hum, "%")
+
+        #READ TELEGRAM COMMANDS
         r = urequests.get(GET_URL + "?offset={}".format(last_update_id + 1))
         data = r.json()
         r.close()
 
-        updates = data.get("result", [])
-        for upd in updates:
+        for upd in data.get("result", []):
             last_update_id = upd["update_id"]
+
             msg = upd.get("message")
             if not msg:
                 continue
 
             text = msg.get("text", "")
             chat_id = msg["chat"]["id"]
+
             if str(chat_id) == CHAT_ID:
-                print("Command received:", text)
 
                 if text == "/on":
                     relay.on()
-                    alerting = False
-                    print("Relay turned ON")
-                    send_message("✅ Relay turned ON")
+                    print("Relay ON by user")
+                    send_message("Relay turned ON")
 
                 elif text == "/off":
                     relay.off()
-                    print("Relay turned OFF")
-                    send_message("❌ Relay turned OFF")
+                    print("Relay OFF by user")
+                    send_message("Relay turned OFF")
 
                 elif text == "/status":
-                    sensor.measure()
-                    temp = sensor.temperature()
-                    hum = sensor.humidity()
-                    state = "ON" if relay.value() else "OFF"
                     send_message(
-                        "🌡 Temp: {:.2f} °C\n"
-                        "💧 Humidity: {:.2f} %\n"
-                        "🔌 Relay: {}"
-                        .format(temp, hum, state)
+                        "Temperature: {:.2f} C\nHumidity: {:.2f} %\nRelay: {}"
+                        .format(temp, hum, "ON" if relay.value() else "OFF")
                     )
 
-        # -------- Temperature-based alerts (always run) --------
-        sensor.measure()
-        temp = sensor.temperature()
+        #AUTOMATIC ALERT (EVERY 5s)
+        if temp >= TEMP_THRESHOLD and relay.value() == 0:
+            print("High temperature alert sent")
+            send_message("High temperature: {:.2f} C".format(temp))
 
-        # High temp alert
-        if temp >= 30 and not relay.value():
-            send_message("⚠️ ALERT! Temperature {:.2f}°C. Relay is OFF!".format(temp))
-            alerting = True
-
-        # Auto turn-off
-        elif temp < 30 and relay.value():
+        #AUTO OFF
+        if temp < TEMP_THRESHOLD and relay.value() == 1:
             relay.off()
-            send_message("ℹ️ Auto-OFF: Temperature dropped below 30°C")
-            alerting = False
+            print("Relay auto-OFF")
+            send_message("Relay auto-OFF (temperature normal)")
 
     except Exception as e:
         print("Error:", e)
 
-    time.sleep(0.3)
+    time.sleep(5)

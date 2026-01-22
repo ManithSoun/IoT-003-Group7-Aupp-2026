@@ -1,4 +1,4 @@
-# IoT Lab Tasks – DHT22 & Telegram Bot
+# _IoT Lab Tasks – DHT22 & Telegram Bot_
 
 ## Task 1: Sensor Read & Print
 
@@ -43,3 +43,7 @@
   ## Video Demo
 
   [Task 4 Demo Video](videos/task4_demo.mp4)
+
+# Configuration
+
+![Config](asset/config.png)
