@@ -7,8 +7,8 @@ SSID = "Robotic WIFI"
 PASSWORD = "rbtWIFI@2025"
 
 # TELEGRAM CONFIG
-BOT_TOKEN = "8378245115:AAEwSFBK-Noxo38CT-NS8kE4p8Ht9qMkuBA"
-CHAT_ID = "-5280207636"  
+BOT_TOKEN = "bot_token"
+CHAT_ID = "chat_id"  
 
 SEND_URL = "https://api.telegram.org/bot{}/sendMessage".format(BOT_TOKEN)
 GET_URL  = "https://api.telegram.org/bot{}/getUpdates".format(BOT_TOKEN)
