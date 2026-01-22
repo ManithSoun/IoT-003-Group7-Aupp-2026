@@ -1,0 +1,44 @@
+# IoT Lab Tasks – DHT22 & Telegram Bot
+
+## Task 1: Sensor Read & Print
+
+- Read **DHT22** sensor data every **5 seconds**.
+- Print **temperature** and **humidity** values with **2 decimal places**.
+  ![Task 1](images/serial.png)
+
+## Task 2: Telegram Send
+
+- Implement the `send_message()` function.
+- Send a **test message** to the Telegram group.
+
+  ![Task 2](images/serial.png)
+
+## Task 3: Bot Commands
+
+- Implement `/status` command to reply with:
+  - Current **temperature**
+  - Current **humidity**
+  - **Relay state**
+- Implement `/on` and `/off` commands to control the relay.
+
+  ![Task 3](images/serial.png)
+
+## Task 4: Temperature Alert Logic
+
+- No alert messages while **temperature < 30°C**.
+- If **temperature ≥ 30°C** and **relay is OFF**:
+  - Send an alert **every loop (5 seconds)** until `/on` is received.
+- After receiving `/on`:
+  - Stop sending alerts.
+- When **temperature < 30°C**:
+
+  - Automatically turn the relay **OFF**.
+  - Send a **one-time "auto-OFF"** notification.
+
+  ## Flowchart
+
+  ![Task4](images/serial.png)
+
+  ## Video Demo
+
+  [Task 4 Demo Video](videos/task4_demo.mp4)
