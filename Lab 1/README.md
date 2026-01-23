@@ -1,5 +1,14 @@
 # _IoT Lab Tasks – DHT22 & Telegram Bot_
 
+## Wiring
+
+![wiring](asset/wiring_diagram.png)
+![wiring](asset/wiring.png)
+
+# Configuration
+
+![Config](asset/config.png)
+
 ## Task 1: Sensor Read & Print
 
 - Read **DHT22** sensor data every **5 seconds**.
@@ -38,12 +47,8 @@
 
   ## Flowchart
 
-  ![Task4](images/serial.png)
+  ![Task4](asset/flowchart.png)
 
   ## Video Demo
 
-  [Task 4 Demo Video](videos/task4_demo.mp4)
-
-# Configuration
-
-![Config](asset/config.png)
+  [Click here to view demo video](https://youtu.be/qg2fIZ6nbvY)
