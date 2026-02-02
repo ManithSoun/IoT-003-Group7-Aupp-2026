@@ -24,11 +24,20 @@ ip = wifi.ifconfig()[0]
 print("Connected!")
 print("ESP32 IP address:", ip)
 
-# WEB SERVER SETUP
+# WEB SERVER SETUP (SAFE)
 addr = socket.getaddrinfo("0.0.0.0", 80)[0][-1]
 s = socket.socket()
+
+try:
+    s.close()
+except:
+    pass
+
+s = socket.socket()
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind(addr)
 s.listen(1)
+
 
 print("Web server running...")
 
