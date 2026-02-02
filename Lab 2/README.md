@@ -2,7 +2,7 @@
 
 ## Wiring
 
-![wiring](asset/wiring_diagram.png)
+![wiring](/Lab%202/asset/wiringdiagram.png)
 ![wiring](asset/wiring.png)
 
 # Configuration
