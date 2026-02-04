@@ -52,8 +52,8 @@ SCROLL_DELAY = 0.25   # seconds (smooth)
 last_scroll = 0
 
 # WIFI
-ssid = "Roasters home"
-password = "matcha520"
+ssid = "Robotic WIFI"
+password = "rbtWIFI@2025"
 
 wifi = network.WLAN(network.STA_IF)
 wifi.active(True)
