@@ -5,9 +5,6 @@
 ![wiring](/Lab%202/asset/wiringdiagram.png)
 ![wiring](asset/wiring.png)
 
-# Configuration
-
-![Config](asset/config.png)
 
 ## Setup Instructions
 
