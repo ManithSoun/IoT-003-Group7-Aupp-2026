@@ -1,4 +1,4 @@
-# _IoT Lab Tasks – DHT22 & Telegram Bot_
+# LAB2_Webserver_LCD_Control
 
 ## Wiring
 
@@ -19,7 +19,7 @@
    password = "YOUR_WIFI_PASSWORD"
    ```
 
-## Task 1: LED Control
+## Task 1 - LED Control
 
 - Add two buttons (ON/OFF) on the web page.
 - When clicked, LED on GPIO2 should turn ON or OFF.

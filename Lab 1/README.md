@@ -1,4 +1,4 @@
-# _IoT Lab Tasks – DHT22 & Telegram Bot_
+# LAB1_Temperature Sensor with Relay Control
 
 ## Wiring
 
