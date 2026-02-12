@@ -19,14 +19,14 @@
 - Slider position from 0 to 180 degree and the servo is moving following the slider
 - Evidence: Short video showing phone control servo movement.
 
-[Task 2 demo video]()
+[Task 2 demo video](https://youtu.be/s9_aFUQxZFM?si=7Xa2l8mhGaUiO8Kn)
 
 ## Task 3 – Automatic IR - Servo Action
 - When IR sensor detects an object, servo opens automatically.
 - After a short delay, servo returns to closed position.
 - Evidence: Video showing automatic response to object detection.
 
-[Task 3 demo video]()
+[Task 3 demo video](https://youtu.be/Mr8lBKiI4GA?si=acX7FeaPYV85fYgN)
 
 ## Task 4 – TM1637 Display Integration
 - Count the number of IR detection events.
