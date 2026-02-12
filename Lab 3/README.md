@@ -11,6 +11,7 @@
 - Read IR sensor digital output using ESP32.
 - Display IR status (Detected / Not Detected) on Blynk.
 - Evidence: Screenshot of Blynk showing IR status.
+
 [Task 1 demo video](https://youtu.be/2fcf_426CCw?si=SaaoB3swGQb_jFPO)
 
 ## Task 2 – Servo Motor Control via Blynk
