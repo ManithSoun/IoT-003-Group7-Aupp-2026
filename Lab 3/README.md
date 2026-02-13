@@ -180,4 +180,5 @@ This project uses 2 files:
 
 [Task 5 demo video](https://youtu.be/F4ivxzQxiFE?si=vP5ZEh1ORtU21PL5)
 
+Screenshots of Blynk dashboard
 ![Screenshots of Blynk dashboard](asset/blynk_dashboard.png)
