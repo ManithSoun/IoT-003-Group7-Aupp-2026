@@ -178,6 +178,6 @@ This project uses 2 files:
 - When manual mode is active, IR sensor is ignored.
 - Evidence: Demonstration video of override behavior.
 
-[Task 5 demo video](https://youtu.be/HAjY8q0D7Mw?si=L6vYrw0Sj6_uNqch)
+[Task 5 demo video](https://youtu.be/F4ivxzQxiFE?si=vP5ZEh1ORtU21PL5)
 
 ![Screenshots of Blynk dashboard](asset/blynk_dashboard.png)
