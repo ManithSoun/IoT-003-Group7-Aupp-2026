@@ -1,0 +1,139 @@
+[
+    {
+        "id": "561e4969017a7882",
+        "type": "tab",
+        "label": "Flow 4",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "6ffbf096a75e01f3",
+        "type": "mqtt in",
+        "z": "561e4969017a7882",
+        "name": "",
+        "topic": "/aupp/esp32/multi_sensors",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "24bac2709835cb42",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 200,
+        "y": 280,
+        "wires": [
+            [
+                "f98a77ec4261762e",
+                "bf1d3f42df874a0c"
+            ]
+        ]
+    },
+    {
+        "id": "f98a77ec4261762e",
+        "type": "function",
+        "z": "561e4969017a7882",
+        "name": "function 4",
+        "func": "var p = msg.payload;\n\nmsg.payload = \"iot_monitor,risk_level=\" + p.risk_level +\n    \" gas_raw=\" + (parseFloat(p.gas_raw) || 0.0) +\n    \",gas_avg=\" + (parseFloat(p.gas_avg) || 0.0) +\n    \",body_temp=\" + (parseFloat(p.body_temp) || 0.0) +\n    \",fever_flag=\" + (parseFloat(p.fever_flag) || 0.0) +\n    \",room_temp=\" + (parseFloat(p.room_temp) || 0.0) +\n    \",pressure=\" + (parseFloat(p.pressure) || 0.0) +\n    \",altitude=\" + (parseFloat(p.altitude) || 0.0) +\n    \",risk_value=\" + (p.risk_level === \"SAFE\" ? 0 : p.risk_level === \"WARNING\" ? 1 : 2);\n\nmsg.headers = { \"Content-Type\": \"text/plain\" };\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 280,
+        "wires": [
+            [
+                "c2eb9f4b7f68b1d7",
+                "aa142426827c56ee"
+            ]
+        ]
+    },
+    {
+        "id": "bf1d3f42df874a0c",
+        "type": "debug",
+        "z": "561e4969017a7882",
+        "name": "debug 7",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 460,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "c2eb9f4b7f68b1d7",
+        "type": "debug",
+        "z": "561e4969017a7882",
+        "name": "debug 8",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "aa142426827c56ee",
+        "type": "http request",
+        "z": "561e4969017a7882",
+        "name": "",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "http://127.0.0.1:8086/write?db=aupp_lab",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 670,
+        "y": 240,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "24bac2709835cb42",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "broker.hivemq.com",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    }
+]

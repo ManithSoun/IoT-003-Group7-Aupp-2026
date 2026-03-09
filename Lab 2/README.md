@@ -2,9 +2,8 @@
 
 ## Wiring
 
-![wiring](/Lab%202/asset/wiringdiagram.png)
+![wiring](asset/wiringdiagram.png)
 ![wiring](asset/wiring.png)
-
 
 ## Setup Instructions
 
