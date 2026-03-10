@@ -99,6 +99,8 @@ Grafana panels:
 
 ## Flowchart
 
+![FlowChart](/Lab%204/asset/lab4_diagram.png)
+
 ## Node-RED flow
 
 ![Node-RED flow](asset/node_red_flow.png)
