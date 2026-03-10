@@ -99,7 +99,7 @@ Grafana panels:
 
 ## Flowchart
 
-![FlowChart](/Lab%204/asset/lab4_diagram.png)
+![FlowChart](/Lab%204/asset/lab4_flowchart.png)
 
 ## Node-RED flow
 
@@ -111,5 +111,5 @@ Grafana panels:
 
 ## Demo video
 
-![Demoo photo](asset/demo.png)
+![Demo photo](asset/demo.png)
 [Link to demo video](https://youtu.be/uZ0yxigEDpU?si=wS-dwX0jW8T1dfGu)
