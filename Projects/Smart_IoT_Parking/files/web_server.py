@@ -60,9 +60,9 @@ def web_serve(server_socket, entry_gate, exit_gate, tm, dht, lighting, lcd, gate
             return False   # ← return False = no request
 
         action_taken = False
-        if   "/open_entry"  in path: entry_gate.open();  lcd.show_vehicle_entering(); action_taken = True
+        if   "/open_entry"  in path: entry_gate.open();  action_taken = True
         elif "/close_entry" in path: entry_gate.close(); action_taken = True
-        elif "/open_exit"   in path: exit_gate.open();   lcd.show_vehicle_exiting();  action_taken = True
+        elif "/open_exit"   in path: exit_gate.open();   action_taken = True
         elif "/close_exit"  in path: exit_gate.close();  action_taken = True
         elif "/light_on"    in path: lighting.set_auto_mode(False); lighting.lights_on();  lighting.led_on();  action_taken = True
         elif "/light_off"   in path: lighting.set_auto_mode(False); lighting.lights_off(); lighting.led_off(); action_taken = True

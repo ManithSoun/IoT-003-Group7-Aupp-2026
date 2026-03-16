@@ -37,7 +37,7 @@ class SlotDisplay:
 
     def update(self):
         available = self.get_available_count()
-        if available != self._last_available:
+        if available != self._last_available:  
             self.display.show_digit(available)
             self._last_available = available
             print(f"[TM1637] Slots: {available} / {self.num_slots} available")

@@ -117,6 +117,12 @@ def main():
     cars_entered   = 0
     cars_exited    = 0
     emergency_mode = False
+    
+    # Reservation system
+    reservation_pin    = None
+    reservation_time   = 0
+    reservation_active = False
+    RESERVATION_TIMEOUT = 100000  # 10 minutes (use 10000 for testing)
 
     lcd.show_welcome()
     time.sleep(2)
@@ -172,6 +178,13 @@ def main():
             last_lcd = 0
             slot_freed_alert = True
         last_was_full = is_full_now
+        
+        # 6.5 Reservation expiry
+        if reservation_active:
+            if time.ticks_diff(now, reservation_time) >= RESERVATION_TIMEOUT:
+                reservation_active = False
+                reservation_pin    = None
+                print("[Reservation] Expired")
 
         # 7. DHT11 every 3 seconds
         if time.ticks_diff(now, last_dht) >= 3000:
