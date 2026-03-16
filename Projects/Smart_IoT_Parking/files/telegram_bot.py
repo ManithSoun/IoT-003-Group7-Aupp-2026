@@ -4,9 +4,9 @@ import ujson
 import time
 import gc
 
-BOT_TOKEN    = "8378245115:AAEwSFBK-Noxo38CT-NS8kE4p8Ht9qMkuBA"
-ALLOWED_ID   = -1003859247655
-BOT_TOPIC_ID = 16
+BOT_TOKEN    = "Your token"
+ALLOWED_ID   = chat id
+BOT_TOPIC_ID = 16 (change topic id)
 BASE_URL     = f"https://api.telegram.org/bot{BOT_TOKEN}"
 
 last_update_id = 0

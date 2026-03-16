@@ -4,7 +4,7 @@ import gc
 import time
 
 BLYNK_API   = "http://blynk.cloud/external/api"
-BLYNK_TOKEN = "_Hd_bbf5jAZ6LVWl9opiATjSDK4dXgXQ"
+BLYNK_TOKEN = "blynk_token"
 
 # Track last known button states
 _last_v0 = "0"
