@@ -86,7 +86,7 @@ class Gate:
         return "OPEN" if self.is_open else "CLOSED"
 
 
-def read_both_sensors(entry_sensor, exit_sensor, delay_ms=60):
+def read_both_sensors(entry_sensor, exit_sensor, delay_ms=30):
     entry_dist = entry_sensor.get_distance_cm()
     time.sleep_ms(delay_ms)
     exit_dist  = exit_sensor.get_distance_cm()

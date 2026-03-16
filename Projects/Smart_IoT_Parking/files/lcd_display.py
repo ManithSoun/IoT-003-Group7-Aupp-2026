@@ -26,7 +26,7 @@ class ParkingLCD:
         self._print_row("  System Ready ", row=1)
 
     def show_status(self, available, total, entry_gate, exit_gate):
-        self._print_row(f"Slots: {available} / {total}", row=0)
+        self._print_row(f"Available: {available}", row=0)
         self._print_row(f"EN:{entry_gate[:4]} EX:{exit_gate[:4]}", row=1)
 
     def show_vehicle_entering(self):
