@@ -12,8 +12,8 @@ from blynk          import blynk_update, blynk_check_buttons
 from web_server     import web_start, web_serve
 
 # ─── CONFIG ───────────────────────────────────────────────────────────────
-WIFI_SSID  = "Robotic WIFI"
-WIFI_PASS  = "rbtWIFI@2025"
+WIFI_SSID  = "Roasters home"
+WIFI_PASS  = "matcha520"
 
 ENTRY_TRIG = 5
 ENTRY_ECHO = 18
@@ -92,22 +92,26 @@ def main():
     ip = connect_wifi()
     time.sleep(3)
 
-    server_socket = web_start()
+    server_socket = None
     if ip:
-        print(f"Web: http://{ip}")
-        lcd.show_message(" Dashboard at:", f" {ip}")
+        try:
+            server_socket = web_start()
+            print(f"Web: http://{ip}")
+            lcd.show_message(" Dashboard at:", f" {ip}")
+        except:
+            print("[Web] Failed to start")
         time.sleep(2)
 
     # Timing
-    last_telegram    = time.ticks_ms()
-    last_blynk       = time.ticks_ms() + 20000
+    last_telegram    = time.ticks_ms() + 5000
+    last_blynk       = time.ticks_ms() + 25000
     last_blynk_check = time.ticks_ms() + 15000
     last_dht         = time.ticks_ms()
     last_lcd         = time.ticks_ms()
+    last_gc          = time.ticks_ms()
     last_was_full    = False
     temp_cache       = 30
     hum_cache        = 0
-    last_web_request = 0
 
     # Alert flags
     full_alert       = False
@@ -117,12 +121,6 @@ def main():
     cars_entered   = 0
     cars_exited    = 0
     emergency_mode = False
-    
-    # Reservation system
-    reservation_pin    = None
-    reservation_time   = 0
-    reservation_active = False
-    RESERVATION_TIMEOUT = 100000  # 10 minutes (use 10000 for testing)
 
     lcd.show_welcome()
     time.sleep(2)
@@ -130,8 +128,15 @@ def main():
     print("System ready!\n")
 
     while True:
-        gc.collect()
         now = time.ticks_ms()
+        
+        # Garbage collection
+        if time.ticks_diff(now, last_gc) >= 30000:
+            mem_before = gc.mem_free()
+            gc.collect()
+            mem_after = gc.mem_free()
+            print(f"[RAM] {mem_before} -> {mem_after}")
+            last_gc = now
 
         # 1. Read IR sensors
         available = tm.update()
@@ -159,32 +164,19 @@ def main():
                 cars_exited += 1
 
         # 5. Gate tick
-        entry_was_open = entry_gate.is_open
-        exit_was_open  = exit_gate.is_open
         entry_gate.tick(sensor=entry_sensor, min_cm=MIN_CM, max_cm=MAX_CM)
         exit_gate.tick(sensor=exit_sensor,   min_cm=MIN_CM, max_cm=MAX_CM)
-        if entry_was_open != entry_gate.is_open:
-            last_lcd = 0
-        if exit_was_open != exit_gate.is_open:
-            last_lcd = 0
 
         # 6. Full/free alerts
         is_full_now = tm.is_full()
         if is_full_now and not last_was_full:
             lcd.show_full()
-            last_lcd = now
             full_alert = True
+            slot_freed_alert = False
         elif not is_full_now and last_was_full:
-            last_lcd = 0
             slot_freed_alert = True
+            full_alert = False
         last_was_full = is_full_now
-        
-        # 6.5 Reservation expiry
-        if reservation_active:
-            if time.ticks_diff(now, reservation_time) >= RESERVATION_TIMEOUT:
-                reservation_active = False
-                reservation_pin    = None
-                print("[Reservation] Expired")
 
         # 7. DHT11 every 3 seconds
         if time.ticks_diff(now, last_dht) >= 3000:
@@ -203,47 +195,62 @@ def main():
                                 entry_gate.get_status(), exit_gate.get_status())
             last_lcd = now
 
-        # 9. Telegram every 8 seconds
-        if time.ticks_diff(now, last_telegram) >= 8000:
-            if time.ticks_diff(now, last_web_request) > 3000:
-                check_wifi()
-                gc.collect()
-                gc.collect()
+        # 9. Telegram - every 5 seconds
+        if time.ticks_diff(now, last_telegram) >= 5000:
+            try:
+                # Send alerts if needed
                 if full_alert:
-                    telegram_send("Parking is now FULL!")
+                    telegram_send("FULL")
                     full_alert = False
+                    
                 if slot_freed_alert:
-                    telegram_send(f"Slot freed — {available} slot(s) available.")
+                    telegram_send("FREE")
                     slot_freed_alert = False
+                
+                # Process commands
                 emergency_mode = telegram_process(
                     entry_gate, exit_gate, tm, dht, lighting, lcd,
                     gate_delay=GATE_DELAY, night_temp=NIGHT_TEMP,
                     emergency_mode=emergency_mode,
                     cars_entered=cars_entered, cars_exited=cars_exited
                 )
-                if not emergency_mode:
-                    smart_lighting(lighting, temp_cache)
+            except Exception as e:
+                print(f"Tg Err")
+            
             last_telegram = now
+ 
 
         # 10. Blynk check every 5 seconds
         if time.ticks_diff(now, last_blynk_check) >= 5000:
-            blynk_check_buttons(entry_gate, exit_gate, lighting,
-                                gate_delay=GATE_DELAY)
-            gc.collect()
+            try:
+                blynk_check_buttons(entry_gate, exit_gate, lighting,
+                                   gate_delay=GATE_DELAY)
+            except Exception as e:
+                print(f"[Blynk] Check error: {e}")
             last_blynk_check = now
 
         # 11. Blynk update every 30 seconds
         if time.ticks_diff(now, last_blynk) >= 30000:
-            blynk_update(tm, dht, entry_gate, exit_gate, lighting)
-            gc.collect()
+            try:
+                blynk_update(tm, dht, entry_gate, exit_gate, lighting)
+            except Exception as e:
+                print(f"[Blynk] Update error: {e}")
             last_blynk = now
 
         # 12. Web server
-        web_active = web_serve(server_socket, entry_gate, exit_gate,
-                               tm, dht, lighting, lcd, gate_delay=GATE_DELAY)
-        if web_active:
-            last_web_request = now
+        if server_socket:
+            try:
+                web_serve(server_socket, entry_gate, exit_gate,
+                         tm, dht, lighting, lcd, gate_delay=GATE_DELAY)
+            except:
+                pass
 
         time.sleep_ms(100)
 
-main()
+try:
+    main()
+except Exception as e:
+    print(f"FATAL ERROR: {e}")
+    time.sleep(10)
+    import machine
+    machine.reset()
