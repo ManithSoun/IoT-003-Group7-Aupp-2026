@@ -74,11 +74,6 @@ This layer consists of output devices and IOT platforms that receive commands or
 - LCD I2C Display: This is an output device used to show status of the whole parking space whether there's a slot available and both gate status.
 - Relay Module and LED lights: receive data from ESP32 through DHT11 and turn on LED when night comes.
 - IOT platform: Consist of three main platforms such as Telegram chat bot, Web dashboard and Blynk app which all receive data and send data communicating back and forth with the ESP32.
-
-### 4. System Architecture Diagram
-
-diagram
-
 ---
 
 ## Software Architecture
@@ -270,7 +265,7 @@ The ESP32 sends real-time system data to external IoT platforms:
 
 ### System Architecture
 
-![System Workflow](asset/system_architecture.jpg)
+![Diagram](/Projects/Smart_IoT_Parking/asset/system_architecture.png)
 
 ### System Workflow
 
