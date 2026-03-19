@@ -308,5 +308,7 @@ In conclusion, the **Bloom Lot Smart IoT Parking System** demonstrates how IoT t
 Overall, the project shows how hardware, software, and IoT communication can work together to create a smart and convenient parking solution, with potential for further improvements in the future.
 
 ---
+
 ## Video Presentation
-[Link to video presentation](https://youtu.be/uZ0yxigEDpU?si=wS-dwX0jW8T1dfGu)
+
+[Link to video presentation](https://youtu.be/Hbwmx_uMP88)
