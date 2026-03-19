@@ -10,39 +10,38 @@ Bloom Lot is a smart IoT-based parking system designed to improve parking manage
 
 ## Hardware description
 
-| Component           | Amount | Role & Description                                           | 
+| Component           | Amount | Role & Description                                           |
 | ------------------- | ------ | ------------------------------------------------------------ |
 | ESP32 (MicroPython) | 1      | Main microcontroller, it runs all logic, WiFi, IoT Platforms |
 | Ultrssonic          | 2      | Detects vehicles at entry and exit points                    |
 | IR Sensor           | 4      | Detects occupancy of each individual parking slot            |
 | Servo Motor         | 2      | Control entry and exit gate barrier arms                     |
 | DHT11               | 1      | Measures ambient temperature and humidity                    |
-| Relay Module        | 1      | Switches main parking area lights on/off                     |
 | LED                 | 1      | Visual status indicator on the ESP32 board                   |
 | TM1637 Display      | 1      | 4-digit 7-segment display showing available slot count       |
 | LCD I2C             | 1      | Two-line display showing gate status and system messages     |
 
 ## Hardware Configuration
 
-| component | Signal | GPIO |
-| --------- | ------ | ---- |
-| Ultrasonic 1 (entry) | TRIG | GPIO5 | 
-| Ultrasonic 1 (entry) | ECHO | GPIO18 | 
-| Ultrasonic 1 (exit) | TRIG | GPIO19 |
-| Ultrasonic 1 (exit) | ECHO | GPIO23 |
-| IP Sensor 1 | OUT | GPIO34 |
-| IP Sensor 2 | OUT | GPIO35 |
-| IP Sensor 3 | OUT | GPIO36 |
-| IP Sensor 4 | OUT | GPIO39 |
-| Servo entry | SIGNAL | GPIO13 |
-| Servo Exit | SIGNAL | GPIO12 |
-| DHT11 | DATA | GPIO4 |
-| Relay Module | IN | GPIO26 |
-| LED | SIGNAL | GPIO2 |
-| TM1637 | CLK | GPIO14 |
-| TM1637 | DIO | GPIO27 |
-| LCD I2C | SDA | GPIO21 |
-| LCD 12C | SCL | GPIO22 |
+| component            | Signal | GPIO   |
+| -------------------- | ------ | ------ |
+| Ultrasonic 1 (entry) | TRIG   | GPIO5  |
+| Ultrasonic 1 (entry) | ECHO   | GPIO18 |
+| Ultrasonic 1 (exit)  | TRIG   | GPIO19 |
+| Ultrasonic 1 (exit)  | ECHO   | GPIO23 |
+| IP Sensor 1          | OUT    | GPIO34 |
+| IP Sensor 2          | OUT    | GPIO35 |
+| IP Sensor 3          | OUT    | GPIO36 |
+| IP Sensor 4          | OUT    | GPIO39 |
+| Servo entry          | SIGNAL | GPIO13 |
+| Servo Exit           | SIGNAL | GPIO12 |
+| DHT11                | DATA   | GPIO4  |
+| LED                  | SIGNAL | GPIO2  |
+| TM1637               | CLK    | GPIO14 |
+| TM1637               | DIO    | GPIO27 |
+| LCD I2C              | SDA    | GPIO21 |
+| LCD 12C              | SCL    | GPIO22 |
+
 ---
 
 ## System Architecture
@@ -74,6 +73,7 @@ This layer consists of output devices and IOT platforms that receive commands or
 - LCD I2C Display: This is an output device used to show status of the whole parking space whether there's a slot available and both gate status.
 - Relay Module and LED lights: receive data from ESP32 through DHT11 and turn on LED when night comes.
 - IOT platform: Consist of three main platforms such as Telegram chat bot, Web dashboard and Blynk app which all receive data and send data communicating back and forth with the ESP32.
+
 ---
 
 ## Software Architecture
@@ -103,6 +103,7 @@ This module controls the opening and closing of parking gates.
 - `Set_servor2()`: Sets the angle of the exit gate servo motor
 - `open_entry_gate()` and `close_entry_gate()`: Open and Closes the entry gate by resetting the entry servo motor position.
 - `Open_exit_gate()` and `close_exit_gate()`: Opens the exit gate when a vehicle is detected leaving the parking area and closes when vehicle has exited.
+- `tick()`: Automatically closes the gate after a set delay once the vihecles has passed.
 
 ### 3. Display Management Module
 
@@ -121,7 +122,8 @@ Function responsible controlling the LED.
 
 - `light_on()`: Activates relay turn on the parking LED.
 - `light_off()`: Deactivate the relay to turn off the parking LED.
-- `get_light_status()`: return the current status of LED.
+- `get_light_status()`: Return the current status of LED.
+- `smart_lighting()`: Automatically controls the LED based on temperature — turns on when temperature is below the threshold.
 
 ### 5. Telegram Communication Module
 
@@ -129,11 +131,10 @@ Functions responsible for communicating with the Telegram bot.
 
 #### Main Function:
 
-- `tg_request()`: Sends HTTP requests to the Telegram Bot API server
-- `tg_send()`: Sends system messages or notifications to the Telegram chat.
-- `tg_get_updates()`: Retrieves new messages or commands from the Telegram bot.
-- `tg_handle()`: Processes Telegram commands and performs corresponding system actions.
-- `tg_poll()`: Periodically checks for new Telegram commands.
+- `safe_request()`: Sends HTTP requests to the Telegram Bot API server with error handling.
+- `telegram_send()`: Sends system messages or notifications to the Telegram chat.
+- `telegram_get_updates()`: Retrieves new messages or commands from the Telegram bot.
+- `telegram_process()`: Processes Telegram commands and performs corresponding system actions.
 
 ### 6. Web Dashboard Module
 
@@ -141,9 +142,9 @@ Functions responsible for handling the web-based monitoring interface.
 
 #### Main Function:
 
-- `get_html()`: Generates the HTML page used for the parking system dashboard.
-- `Web_handle()`:Processes HTTP requests and performs actions triggered from the web interface.
-- `Create_web_server()`: Starts a web server on the ESP32 for dashboard access.
+- `build_html()`: Generates the HTML page used for the parking system dashboard.
+- `web_serve()`:Processes HTTP requests and performs actions triggered from the web interface.
+- `web_start()`: Starts a web server on the ESP32 for dashboard access.
 
 ### 7. Blynk Communication Module:
 
@@ -151,9 +152,15 @@ Functions responsible for communicating with the Blynk IoT platform.
 
 #### Main function:
 
-- `Blynk_connect()`: Establishes a connection between the ESP32 and the Blynk server.
-- `blynk_write()`:Sends sensor and system data to Blynk virtual pins.
-- `blynk_run()`:Handles incoming commands from the Blynk application.
+- `blynk_set(pin, value)`: Sends data to a specific Blynk virtual pin.
+- `blynk_get(pin)`: Reads the current value of a specific Blynk virtual pin.
+- `blynk_update()`:Sends sensor and system data to Blynk virtual pins.
+  - temperature (V1)
+  - available slots (V2)
+  - entry gate status (V0)
+  - exit gate status (V3)
+  - light status (V4)
+- `blynk_check_button()`: Reads V0, V3, and V4 from Blynk and compares with last known values. If a value changed, it triggers the corresponding action such as opening a gate or toggling lights. On first run it only syncs values without taking any action to prevent unintended triggers on startup.
 
 ---
 
@@ -204,15 +211,34 @@ The ESP32 hosts a local web server that provides a real-time parking management 
 
 The system also connects to the Blynk IoT platform for mobile monitoring and control over features:
 
-- Displays real-time system data of Temperature and Available parking slots
-- Allows users to remotely control Entry gate and Exit gate
+- V0 - Entry gate control switch
+- V1 - Temperature gauge
+- V2 - Available slot counter
+- V3 - Exit gate control switch
+- V4 - Lights control switch
 
   #### Communication Method:
 
 - Uses the Blynk TCP protocol through virtual pins.
-- Functions such as `blynk_connect()` and `blynk_write()` manage communication between ESP32 and the Blynk server.
+- Functions such as `blynk_update()` and `blynk_check_button()` manage communication between ESP32 and the Blynk server.
 
 ---
+
+### 5. Smart Features
+
+Beyond basic parking automation, BloomLot includes a few smart features designed to improve user experience and system reliability.
+
+#### 1. Emergency Mode
+
+The `/emergency` command activates emergency mode which immediately opens both entry and exit gates and turns on the parking lights. This is designed for situations such as fire evacuation or security incidents. The system sends a confirmation message to Telegram and remains in emergency mode until the operator sends `/reset` to close the gates and return to normal operation.
+
+#### 2. Daily Statistics
+
+The `/stats` command provides a summary of parking activity including the total number of cars that entered and exited, current occupancy percentage based on IR sensor readings, and the number of available slots. This gives parking operators useful data for monitoring usage patterns.
+
+### 3. Automatic Full and Slot Freed Alerts
+
+The system automatically sends Telegram notifications when the parking lot becomes completely full and when a slot becomes available again after being full. These alerts are queued and sent during the scheduled Telegram polling cycle to avoid SSL conflicts.
 
 ## Working Process Explanation
 
@@ -224,22 +250,21 @@ When the system starts, the ESP32 initializes all sensors, output devices, and c
 
 ### Step 2: Vehicle Detection at Entry Gate
 
-The ultrasonic sensor installed at the entry gate continuously measures the distance between the sensor and approaching vehicles using the `get_entry_distance()` function.
-When a vehicle is detected within a predefined distance threshold and parking slots are available, the ESP32 sends a signal to the entry servo motor to open the gate using the `open_entry_gate()` function.
+The ultrasonic sensor installed at the entry gate continuously measures the distance between the sensor and approaching vehicles. When a vehicle is detected within a predefined distance threshold of 2 to 5 cm and parking slots are available, the ESP32 sends a signal to the entry servo motor to open the gate.
 
 ### Step 3: Parking Slot Detection
 
-Each parking slot is monitored by an IR sensor. The function `get_slot_status()` reads the signals from the IR sensors to determine whether a slot is occupied or free.
-The ESP32 processes the signals from all four sensors and calculates the number of available slots using the `get_available_slot()` function. This information is then displayed on the TM1637 display and the LCD screen.
+Each parking slot is monitored by an IR sensor. The system reads the signals from the IR sensors to determine whether a slot is occupied or free.
+The ESP32 processes the signals from all four sensors and calculates the number of available slots. This information is then displayed on the TM1637 display and the LCD screen.
 
 ### Step 4: Vehicle Entry and Gate Closure
 
-After the vehicle passes through the entry gate, the ESP32 closes the gate using the `close_entry_gate()` function. The system then updates the parking slot status based on the IR sensor readings.
+After the vehicle passes through the entry gate, the system uses the `tick()` function to monitor when the vehicle has fully passed by rechecking the ultrasonic distance. Once the vehicle has cleared the sensor, the gate automatically closes.
 
 ### Step 5: Vehicle Exit Detection
 
-When a vehicle approaches the exit gate, the second ultrasonic sensor measures the distance using the `get_exit_distance()` function. If a vehicle is detected leaving the parking area, the ESP32 triggers the exit servo motor to open the exit gate using `open_exit_gate()`.
-After the vehicle exits, the exit gate is closed automatically using `close_exit_gate()`.
+When a vehicle approaches the exit gate, the second ultrasonic sensor detects it. The ESP32 triggers the exit servo motor to open the exit gate.
+After the vehicle exits, the exit gate is closed automatically using the same tick mechanism.
 
 ### Step 6: Display Updates
 
@@ -250,7 +275,7 @@ The system continuously updates local displays:
 
 ### Step 7: Environmental Monitoring and Lighting
 
-The DHT11 sensor measures the temperature and humidity of the parking area using the `read_dht()` function. Based on environmental conditions, the relay module can activate or deactivate parking lights using the `light_on()` and `light_off()` functions.
+The DHT11 sensor measures the temperature and humidity of the parking area every 3 seconds. Based on temperature reading, the smart lighting function automatically controls the LED. When the parking lot is full, the LCD shows a full message.
 
 ### Step 8: IoT Communication
 
@@ -281,15 +306,11 @@ One of the primary challenges was managing simultaneous communication between Te
 
 ### 2. System Design and Implementation
 
-Another challenge was designing and building the physical parking structure. Since this was a new concept for the team, considerable time was required to understand how to properly place sensors, gates, and other hardware components to ensure accurate detection and smooth system operation.
+Designing and building the physical parking structure required significant trial and error. A key issue was ultrasonic sensor cross-interference — both sensors firing simultaneously caused false vehicle detections. This was resolved by staggering reads with a 60ms delay and using a detection window of 2 to 8 cm instead of a simple threshold.
 
-### 3. Sensor Accuracy and Calibration
+### 3. Network Connectivity
 
-Sensor calibration was also a challenge during system development. Ultrasonic sensors required proper positioning and distance threshold to accurately detect vehicles. Similarly, IR sensors had to be adjusted to ensure that they can correctly detect the presence or absence of vehicles in the parking slots.
-
-### 4. Network Connectivity
-
-Stable WiFi connectivity was important for IoT communication. Temporary network interruptions could delay data transmission between the ESP 32 and external platforms, which required implementing reliable connection handling in the software.
+Stable WiFi connectivity was critical for IoT communication. The most persistent challenge was intermittent SSL failures including `MBEDTLS_ERR_RSA_PUBLIC_FAILED`, `MBEDTLS_ERR_PK_ALLOC_FAILED`, and `MBEDTLS_ERR_X509_ALLOC_FAILED` when connecting to Telegram's HTTPS servers. These errors occurred due to a known bug in MicroPython ESP32's SSL library and were worsened by certain WiFi networks blocking or throttling HTTPS connections. The issue was resolved by switching to a reliable network, removing blocking sleep calls after failed attempts, calling `gc.collect()` before every network request, and ensuring Telegram was only called from a single controlled point in the main loop.
 
 ---
 
@@ -319,9 +340,9 @@ Future versions of the system could store parking data in cloud database to allo
 
 ## Conclusion
 
-In conclusion, the **Bloom Lot Smart IoT Parking System** demonstrates how IoT technology can improve parking management through automation and real-time monitoring. By integrating sensors, the ESP32 microcontroller, and IoT platforms such as Telegram, Web Dashboard, and Blynk, the system can detect vehicles, monitor parking slots, and control gates efficiently.
+In conclusion, the **Bloom Lot Smart IoT Parking System** demonstrates how IoT technology can improve parking management through automation and real-time monitoring. By integrating sensors, the ESP32 microcontroller, and IoT platforms such as Telegram, Web Dashboard, and Blynk, the system can detect vehicles, monitor parking slots, and control gates efficiently. Smart features including automatic lighting, emergency mode, and real-time alerts further enhance the system's reliability and usefulness.
 
-Overall, the project shows how hardware, software, and IoT communication can work together to create a smart and convenient parking solution, with potential for further improvements in the future.
+Overall, the project shows how hardware, software, and IoT communication can work together to create a smart and convenient parking solution with potential for further improvements in the future.
 
 ---
 
