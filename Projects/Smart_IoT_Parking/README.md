@@ -10,7 +10,7 @@ Bloom Lot is a smart IoT-based parking system designed to improve parking manage
 
 ## Hardware description
 
-| Component           | Amount | Role & Description                                           |
+| Component           | Amount | Role & Description                                           | 
 | ------------------- | ------ | ------------------------------------------------------------ |
 | ESP32 (MicroPython) | 1      | Main microcontroller, it runs all logic, WiFi, IoT Platforms |
 | Ultrssonic          | 2      | Detects vehicles at entry and exit points                    |
@@ -22,6 +22,27 @@ Bloom Lot is a smart IoT-based parking system designed to improve parking manage
 | TM1637 Display      | 1      | 4-digit 7-segment display showing available slot count       |
 | LCD I2C             | 1      | Two-line display showing gate status and system messages     |
 
+## Hardware Configuration
+
+| component | Signal | GPIO |
+| --------- | ------ | ---- |
+| Ultrasonic 1 (entry) | TRIG | GPIO5 | 
+| Ultrasonic 1 (entry) | ECHO | GPIO18 | 
+| Ultrasonic 1 (exit) | TRIG | GPIO19 |
+| Ultrasonic 1 (exit) | ECHO | GPIO23 |
+| IP Sensor 1 | OUT | GPIO34 |
+| IP Sensor 2 | OUT | GPIO35 |
+| IP Sensor 3 | OUT | GPIO36 |
+| IP Sensor 4 | OUT | GPIO39 |
+| Servo entry | SIGNAL | GPIO13 |
+| Servo Exit | SIGNAL | GPIO12 |
+| DHT11 | DATA | GPIO4 |
+| Relay Module | IN | GPIO26 |
+| LED | SIGNAL | GPIO2 |
+| TM1637 | CLK | GPIO14 |
+| TM1637 | DIO | GPIO27 |
+| LCD I2C | SDA | GPIO21 |
+| LCD 12C | SCL | GPIO22 |
 ---
 
 ## System Architecture
