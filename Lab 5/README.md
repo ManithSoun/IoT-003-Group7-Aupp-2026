@@ -11,7 +11,7 @@
 - Read RGB values from TCS34725.
 - Print values to Serial Monitor.
 
-![Task 1](asset/lap_5 _task _1.png)
+![Task 1](asset/lap_5_task _1.png)
 
 ## Task 2 - Color Classification
 - Classification Rules:
@@ -49,4 +49,4 @@
 
 ## Diagram
 
-![Diagram](asset/lap5_diagram.excalidraw.png)
+![Diagram](asset/lap5%20_diagram.excalidraw.png)
