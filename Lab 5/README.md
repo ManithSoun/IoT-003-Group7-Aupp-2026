@@ -2,8 +2,8 @@
 
 ## Wiring
 
-![wiring](asset\wiring_1.png)
-![wiring](asset\wiring_2.png)
+![wiring](asset/wiring_1.png)
+![wiring](asset/wiring_2.png)
 
 ## Setup Instructions
 
@@ -11,7 +11,7 @@
 - Read RGB values from TCS34725.
 - Print values to Serial Monitor.
 
-![Task 1](asset\lap 5 task 1.png)
+![Task 1](asset/lap_5 _task _1.png)
 
 ## Task 2 - Color Classification
 - Classification Rules:
@@ -42,7 +42,11 @@
     - RGB input boxes (R, G, B).
     - Button to set NeoPixel color manually.
 
-![Task 5](https://www.youtube.com/watch?v=BKO6mPDrH8c)
+![Task 5 MIT app block](asset/MIT_block.jpg)
+![Task 5 MIT app block](asset/MIT_design.jpg)
+
+![Task 5 demo video](https://www.youtube.com/watch?v=BKO6mPDrH8c)
 
 ## Diagram
-![Diagram](asset\lap5 diagram.excalidraw.png)
+
+![Diagram](asset/lap5_diagram.excalidraw.png)
