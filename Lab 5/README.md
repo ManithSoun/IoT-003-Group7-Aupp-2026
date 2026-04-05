@@ -2,8 +2,8 @@
 
 ## Wiring
 
-![wiring](asset/wiringdiagram.png)
-![wiring](asset/wiring.png)
+![wiring](asset\wiring_1.png)
+![wiring](asset\wiring_2.png)
 
 ## Setup Instructions
 
@@ -11,7 +11,7 @@
 - Read RGB values from TCS34725.
 - Print values to Serial Monitor.
 
-![Task 1]()
+![Task 1](asset\lap 5 task 1.png)
 
 ## Task 2 - Color Classification
 - Classification Rules:
@@ -19,21 +19,21 @@
     - G > R and G > B → GREEN
     - B > R and B > G → BLUE
 
-[Task 2 demo video]()
+[Task 2 demo video](https://www.youtube.com/watch?v=L38auf7_gzo)
 
 ## Task 3 - NeoPixel Control
 - RED → NeoPixel shows Red
 - GREEN → NeoPixel shows Green
 - BLUE → NeoPixel shows Blue
 
-[Task 3 demo video]()
+[Task 3 demo video](youtube.com/watch?v=UymnfYKWV-s&feature=youtu.be)
 
 ## Task 4 - Motor Control (PWM)
 - RED → PWM = 700
 - GREEN → PWM = 500
 - BLUE → PWM = 300
 
-[Task 3 demo video]()
+[Task 4 demo video](https://www.youtube.com/watch?v=8n58xv2gZkQ)
 
 ## Task 5 - MIT App Integration
 - App Requirements:
@@ -42,4 +42,7 @@
     - RGB input boxes (R, G, B).
     - Button to set NeoPixel color manually.
 
-![Task 5]()
+![Task 5](https://www.youtube.com/watch?v=BKO6mPDrH8c)
+
+## Diagram
+![Diagram](asset\lap5 diagram.excalidraw.png)
