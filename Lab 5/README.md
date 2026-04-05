@@ -3,7 +3,7 @@
 ## Wiring
 
 ![wiring](asset/wiring_1.png)
-![wiring](asset/wiring_2.png)
+![wiring](asset/wiring_2.jpeg)
 
 ## Setup Instructions
 
@@ -19,21 +19,21 @@
     - G > R and G > B → GREEN
     - B > R and B > G → BLUE
 
-[Task 2 demo video](https://www.youtube.com/watch?v=L38auf7_gzo)
+[Link to Task 2 demo video](https://www.youtube.com/watch?v=L38auf7_gzo)
 
 ## Task 3 - NeoPixel Control
 - RED → NeoPixel shows Red
 - GREEN → NeoPixel shows Green
 - BLUE → NeoPixel shows Blue
 
-[Task 3 demo video](youtube.com/watch?v=UymnfYKWV-s&feature=youtu.be)
+[Link to Task 3 demo video](youtube.com/watch?v=UymnfYKWV-s&feature=youtu.be)
 
 ## Task 4 - Motor Control (PWM)
 - RED → PWM = 700
 - GREEN → PWM = 500
 - BLUE → PWM = 300
 
-[Task 4 demo video](https://www.youtube.com/watch?v=8n58xv2gZkQ)
+[Link to Task 4 demo video](https://www.youtube.com/watch?v=8n58xv2gZkQ)
 
 ## Task 5 - MIT App Integration
 - App Requirements:
@@ -45,7 +45,7 @@
 ![Task 5 MIT app block](asset/MIT_block.jpg)
 ![Task 5 MIT app block](asset/MIT_design.jpg)
 
-![Task 5 demo video](https://www.youtube.com/watch?v=BKO6mPDrH8c)
+![Link to Task 5 demo video](https://www.youtube.com/watch?v=BKO6mPDrH8c)
 
 ## Diagram
 
