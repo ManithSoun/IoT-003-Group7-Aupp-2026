@@ -15,8 +15,8 @@ in1 = Pin(26, Pin.OUT)
 in2 = Pin(27, Pin.OUT)
 
 # ── WiFi ───────────────────────────────────────────────
-ssid = "Roasters home"
-password = "matcha520"
+ssid = "your_ssid"
+password = "your_password"
 
 wifi = network.WLAN(network.STA_IF)
 wifi.active(True)
