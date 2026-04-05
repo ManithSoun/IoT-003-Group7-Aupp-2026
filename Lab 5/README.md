@@ -1,4 +1,4 @@
-# LAB5*Smart_Color_Detection*&\_Control_with_MIT_App
+# LAB5_Smart_Color_Detection&\_Control_with_MIT_App
 
 ## Wiring
 
