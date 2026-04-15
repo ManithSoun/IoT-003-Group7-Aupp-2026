@@ -4,9 +4,9 @@ from telegram.ext import Application, CommandHandler, ContextTypes
 from telegram import Update
 import requests
 
-BOT_TOKEN = "8378245115:AAEwSFBK-Noxo38CT-NS8kE4p8Ht9qMkuBA"
-CHAT_ID = -1003859247655
-THREAD_ID = 1304
+BOT_TOKEN = "tele_token"
+CHAT_ID = chat_id
+THREAD_ID = thread_id
 
 
 FLASK_URL = "http://localhost:5001"
