@@ -3,8 +3,9 @@ from mfrc522 import MFRC522
 import network
 import urequests
 import time
+import os
+import sdcard
 
-# Wi-Fi
 SSID = "your-wifi"
 PASSWORD = "your-password"
 
@@ -18,19 +19,39 @@ while not wifi.isconnected():
 print("\nConnected:", wifi.ifconfig())
 
 # Firestore
-PROJECT_ID = "your-firestore-id"
+PROJECT_ID = "group7-iot"
 BASE_URL = "https://firestore.googleapis.com/v1/projects/{}/databases/(default)/documents".format(PROJECT_ID)
 
-# RFID
 spi = SPI(1, baudrate=1000000,
           sck=Pin(18), mosi=Pin(23), miso=Pin(19))
 rdr = MFRC522(spi=spi, gpioRst=Pin(22), gpioCs=Pin(16))
 
-# Buzzer
 buzzer = Pin(4, Pin.OUT)
 buzzer.value(0)
 
-# Helpers
+# send to SD card
+CSV_FILE = "/sd/attendance.csv"
+sd_ok = False
+
+try:
+    spi2 = SPI(2, baudrate=100000, polarity=0, phase=0,
+               sck=Pin(14), mosi=Pin(15), miso=Pin(2))
+    sd = sdcard.SDCard(spi2, Pin(13))
+    os.mount(sd, "/sd")
+    print("SD card mounted:", os.listdir("/sd"))
+    sd_ok = True
+
+    try:
+        os.stat(CSV_FILE)
+    except OSError:
+        with open(CSV_FILE, "w") as f:
+            f.write("UID,Name,StudentID,Major,DateTime\n")
+
+except Exception as e:
+    print("SD card failed:", e)
+    print("Continuing without SD card...")
+
+
 def get_datetime():
     t = time.localtime()
     return "{:04d}-{:02d}-{:02d} {:02d}:{:02d}:{:02d}".format(
@@ -61,6 +82,14 @@ def fetch_students():
         print("Failed to fetch students:", e)
     return students
 
+def save_to_sd(uid, name, student_id, major, dt):
+    try:
+        with open(CSV_FILE, "a") as f:
+            f.write("{},{},{},{},{}\n".format(uid, name, student_id, major, dt))
+        print("Saved to SD")
+    except Exception as e:
+        print("SD write error:", e)
+
 def send_to_firestore(uid, name, student_id, major, dt):
     data = {
         "fields": {
@@ -78,10 +107,10 @@ def send_to_firestore(uid, name, student_id, major, dt):
     except Exception as e:
         print("Error sending:", e)
 
-# ── Boot: load students ────────────────────────────────────────────────────
+
 STUDENTS = fetch_students()
 
-# ── Main loop ──────────────────────────────────────────────────────────────
+# main
 print("Scan RFID...")
 
 while True:
@@ -97,6 +126,8 @@ while True:
                 dt = get_datetime()
                 print("Welcome,", student["name"])
                 beep(0.3)
+                if sd_ok:
+                    save_to_sd(uid_str, student["name"], student["student_id"], student["major"], dt)
                 send_to_firestore(uid_str, student["name"], student["student_id"], student["major"], dt)
 
             else:
