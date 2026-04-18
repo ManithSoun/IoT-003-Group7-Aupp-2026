@@ -6,45 +6,57 @@
 
 ## Setup Instructions
 
+1. Install MicroPython on ESP32
+
+2. Upload mfrc522.py and sdcard.py libraries to ESP32
+
+3. Update WiFi ssid, password, and Firestore credentials in main.py
+
+4. Format SD card to FAT32 and insert it into the SD module
+
+5. Run main.py in Thonny
+
+6. Swipe RFID card to check for UID detection and database matching
+
 ## Flowchart
 
 ![Diagram](/Lab%206/asset/lab6_diagram.png)
 
-## Task1 - Read UID from RFID card
+## Firestore
 
-- Detect card and retrieve its unique ID (UID)
+![Firestore](/Lab%206/asset/firestore.png)
 
-![Task 1]()
+## Tasks
+1. Read UID from RFID card
 
-## Task 2 - Match UID with student database
+- Detect card and retrieve its unique ID (UID) 
+
+2. Match UID with student database
 
 - Compare UID with predefined data
 - If found ->valid student
 - If not -> unknown card
 
-![Task 2]()
-
-## Task 3 - Generate current datetime
+3. Generate current datetime
 
 - Format:
 YYYY-MM-DD HH:MM:SS
 
-![Task 3]()
-
-## Task 4 - If UID is valid:
+4. If UID is valid:
 
 - Activate buzzer for 0.3 seconds
 - Save data to SD card (CSV format):
 UID, Name, StudentID, Major, DateTime
 - Send data to Firestore
 
-[Link to Task 4 demo video]()
 
-## Task 5 - If UID is invalid:
+5. If UID is invalid:
 
 - Activate buzzer for 3 seconds
 - Display: "Unknown Card"
 - Do not save or send data
 
-[Link to Task 5 demo video]()
+## Demo Video
+
+[Link to Demo Video]()
 
