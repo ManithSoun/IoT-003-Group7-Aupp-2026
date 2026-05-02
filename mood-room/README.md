@@ -102,7 +102,7 @@ After processing, commands are sent back to the ESP32, which activates output de
 
 ### 3.4 System Architecture Diagram
 
-![System Architecture Diagram]()
+![System Architecture Diagram](/mood-room/assets/system_architecture.png)
 
 ---
 
@@ -163,7 +163,7 @@ MoodRoom uses multiple sensor and AI conditions before taking action.
 
 ### 5.1 Decision Flow Diagram
 
-![System Flow Diagram]()
+![System Flow Diagram](/mood-room/assets/system_folwchart.png)
 
 ---
 
