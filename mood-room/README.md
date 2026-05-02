@@ -13,8 +13,6 @@ In addition to automatic detection, the system also supports manual control via 
 
 MoodRoom hardware is divided into **two main nodes**:
 
----
-
 ### 2.1 Node A — Laptop (Brain)
 
 Node A acts as the intelligent processing center of the system.
@@ -37,25 +35,29 @@ Node A acts as the intelligent processing center of the system.
 - Notify Telegram bot
 - Host dashboard interface
 
----
 
 ### 2.2 Node B — ESP32 (Actuators and Sensors)
 
 Node B is the physical interaction layer that receives emotion commands and controls hardware outputs.
 
 ### Sensors:
-| Component | Function |
-|----------|----------|
-| PIR Sensor | Detects motion / occupancy |
-| IR Sensor | Additional object or presence detection |
+| Component | Pin | Purpose |
+|---|---|---|
+| PIR sensor 1 | GPIO13 | Door detection |
+| IR sensor  | GPIO12 | Room presence |
 
 ### Actuators:
-| Component | Function |
-|----------|----------|
-| NeoPixel 24-LED Ring | Emotion-based lighting effects |
-| DC Motor + L298N | Fan speed control |
-| Piezo Buzzer | Emotion sound alerts |
-| OLED Display | Displays emotion + system status |
+| Component | Pin | Purpose |
+|---|---|---|
+| PIR sensor 1 | GPIO13 | Door detection |
+| PIR sensor 2 | GPIO12 | Room presence |
+| NeoPixel 24-LED | GPIO23 | Color lighting |
+| DC Motor ENA | GPIO14 | Fan speed |
+| DC Motor IN1 | GPIO26 | Fan direction |
+| DC Motor IN2 | GPIO27 | Fan direction |
+| Buzzer | GPIO4 | Audio feedback |
+| Display SDA | GPIO21 | Song info |
+| Display SCL | GPIO22 | Song info |
 
 ### Main Responsibilities:
 - Detect room presence
@@ -68,19 +70,14 @@ Node B is the physical interaction layer that receives emotion commands and cont
 ---
 
 ## 3. System Architecture
+The diagram illustrates the overall interaction between input devices, processing units, and output components in the MoodRoom system. Sensor inputs from the PIR door sensor and IR sensor are first received by the ESP32, which acts as the main controller for hardware operations. The ESP32 communicates bidirectionally with the laptop server using MQTT, enabling data exchange and decision-making.
 
-The MoodRoom system consists of interconnected smart nodes communicating through WiFi and MQTT.
+The ESP-CAM sends captured images directly to the laptop server, where emotion detection is performed. Based on the detected emotion, the laptop server processes the result and controls external services such as Spotify for music playback. It also communicates with the Telegram bot and web dashboard to provide user interaction and system monitoring.
 
-### 3.1 Node Overview
+After processing, commands are sent back to the ESP32, which activates output devices including the NeoPixel LED, DC motor (fan), OLED display, and buzzer. This architecture ensures real-time response, efficient communication, and seamless integration between AI processing and physical environment control.
 
-| Node | Hardware | Role |
-|------|----------|------|
-| Node A | Laptop + Camera | Emotion detection, AI processing, dashboard, Spotify, Telegram |
-| Node B | ESP32 + Sensors/Actuators | Sensor monitoring and physical room control |
 
----
-
-### 3.2 Communication Flow
+### 3.1 Communication Flow
 
 1. PIR detects user presence  
 2. Node A captures image  
@@ -92,7 +89,7 @@ The MoodRoom system consists of interconnected smart nodes communicating through
 
 ---
 
-### 3.3 MQTT Topics
+### 3.2 MQTT Topics
 
 | Topic | Publisher | Subscriber | Purpose |
 |------|------------|-------------|---------|
