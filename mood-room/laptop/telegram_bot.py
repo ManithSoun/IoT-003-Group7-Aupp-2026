@@ -3,26 +3,29 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
 import paho.mqtt.client as mqtt_lib
 import requests
+from dotenv import load_dotenv
 
-BOT_TOKEN     = "8378245115:AAEwSFBK-Noxo38CT-NS8kE4p8Ht9qMkuBA"
-CHAT_ID       = -1003859247655
-THREAD_ID     = 1304
-MQTT_BROKER   = "broker.hivemq.com"
+load_dotenv()
+
+BOT_TOKEN     = os.getenv("TELEGRAM_BOT_TOKEN")
+CHAT_ID       = os.getenv("TELEGRAM_CHAT_ID")
+THREAD_ID     = 1304 
+
+MQTT_BROKER   = os.getenv("MQTT_BROKER")
 TOPIC_EMOTION = "moodroom/emotion"
 TOPIC_PIR     = "moodroom/pir"
 TOPIC_STATUS  = "moodroom/status"
 FLASK_URL     = "http://127.0.0.1:5001"
 
-
 LED_COLORS = {
-    'happy':    '🟡 Yellow',
-    'sad':      '🔵 Blue',
-    'angry':    '🔴 Red',
-    'fear':     '🟣 Purple',
-    'surprise': '⚪ White',
-    'neutral':  '⚪ Soft White',
-    'off':      '⚫ Off',
-    '...':      '⚫ Off',
+    'happy':    'Yellow',
+    'sad':      'Blue',
+    'angry':    'Red',
+    'fear':     'Purple',
+    'surprise': 'Rainbow',
+    'neutral':  'Soft White',
+    'off':      'Off',
+    '...':      'Off',
 }
 
 MUSIC_MAP = {
@@ -48,14 +51,14 @@ EMOJI_MAP = {
 }
 
 # Global state
-current_emotion = "neutral"
+current_emotion = "..."
 person_in_room  = False
 is_auto_mode    = True
 
 # MQTT
 bot_mqtt = mqtt_lib.Client(
     mqtt_lib.CallbackAPIVersion.VERSION2,
-    client_id="moodroom_telegram_bot_v2"
+    client_id="moodroom_telegram_bot_v3"
 )
 
 def on_mqtt_message(client, userdata, message):
@@ -87,20 +90,22 @@ def setup_mqtt():
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "🎭 MoodRoom Bot is alive!\n\n"
-        "📋 Commands:\n"
+        "MoodRoom Bot is alive!\n\n"
+        "Commands:\n"
         "/capture — force emotion scan\n"
         "/status — current room state\n"
-        "/play happy|sad|angry|fear|surprise|neutral\n"
-        "/room off — turn everything off\n"
         "/auto — switch to auto mode\n"
+        "/room_off — turn everything off\n\n"
+        "Play emotions:\n"
+        "/play_happy /play_sad /play_angry\n"
+        "/play_fear /play_surprise /play_neutral\n\n"
         "/help — show all commands"
     )
 
 async def capture(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("📸 Forcing face scan...")
+    await update.message.reply_text("Forcing face scan...")
     bot_mqtt.publish(TOPIC_PIR, "detected")
-    await update.message.reply_text("✅ Scan triggered! Check the room.")
+    await update.message.reply_text("Scan triggered!")
 
 async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
@@ -110,20 +115,20 @@ async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
         server_status = "🔴 Offline"
 
     emoji = EMOJI_MAP.get(current_emotion, '❓')
-    led   = LED_COLORS.get(current_emotion, '⚪ White')
+    led   = LED_COLORS.get(current_emotion, 'White')
     music = MUSIC_MAP.get(current_emotion, 'Unknown')
-    room  = "👤 Someone is here" if person_in_room else "🚪 Empty"
-    mode  = "🤖 Auto" if is_auto_mode else "🎮 Manual"
+    room  = "Someone is here" if person_in_room else "Empty"
+    mode  = "Auto" if is_auto_mode else "Manual"
 
     await update.message.reply_text(
-        f"📊 MoodRoom Status\n"
+        f"MoodRoom Status\n"
         f"{'─' * 20}\n"
-        f"🖥️ Server: {server_status}\n"
-        f"🚪 Room: {room}\n"
-        f"🎭 Mood: {emoji} {current_emotion.upper()}\n"
-        f"💡 LED: {led}\n"
-        f"🎵 Music: {music} playlist\n"
-        f"⚙️ Mode: {mode}"
+        f"Server: {server_status}\n"
+        f"Room: {room}\n"
+        f"Mood: {emoji} {current_emotion.upper()}\n"
+        f"LED: {led}\n"
+        f"Music: {music} playlist\n"
+        f"Mode: {mode}"
     )
 
 async def auto(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -131,96 +136,101 @@ async def auto(update: Update, context: ContextTypes.DEFAULT_TYPE):
     is_auto_mode = True
     bot_mqtt.publish("moodroom/mode", "auto")
     await update.message.reply_text(
-        "🤖 Auto mode ON!\n"
+        "Auto mode ON!\n"
         "Room will now react automatically to emotions."
     )
 
-async def play(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def _play_emotion(update: Update, emotion: str):
     global is_auto_mode
-    if not context.args:
-        await update.message.reply_text(
-            "❌ Usage: /play [emotion]\n"
-            "Options: happy, sad, angry, fear, surprise, neutral"
-        )
-        return
-
-    emotion = context.args[0].lower()
-    valid = ["happy", "sad", "angry", "fear", "surprise", "neutral"]
-    if emotion not in valid:
-        await update.message.reply_text(f"❌ Invalid! Choose: {', '.join(valid)}")
-        return
-
     is_auto_mode = False
     bot_mqtt.publish("moodroom/mode", "manual")
     bot_mqtt.publish(TOPIC_EMOTION, emotion)
     bot_mqtt.publish(TOPIC_STATUS, emotion)
 
-    emoji = EMOJI_MAP.get(emotion, '🎭')
+    emoji = EMOJI_MAP.get(emotion, '')
     led   = LED_COLORS.get(emotion, 'White')
     music = MUSIC_MAP.get(emotion, 'Chill')
 
     await update.message.reply_text(
-        f"🎮 Manual mode ON!\n"
-        f"✅ Switched to {emotion}!\n"
+        f"Manual mode ON!\n"
+        f"Switched to {emotion}!\n"
         f"{emoji} Mood: {emotion.upper()}\n"
-        f"💡 LED: {led}\n"
+        f"LED: {led}\n"
         f"🎵 Music: {music} playlist\n\n"
-        f"Music keeps playing until /room off\n"
         f"Use /auto to return to auto mode"
     )
 
+async def play_happy(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await _play_emotion(update, 'happy')
+
+async def play_sad(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await _play_emotion(update, 'sad')
+
+async def play_angry(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await _play_emotion(update, 'angry')
+
+async def play_fear(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await _play_emotion(update, 'fear')
+
+async def play_surprise(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await _play_emotion(update, 'surprise')
+
+async def play_neutral(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await _play_emotion(update, 'neutral')
+
 async def room_off(update: Update, context: ContextTypes.DEFAULT_TYPE):
     global current_emotion, person_in_room, is_auto_mode
-    if context.args and context.args[0].lower() == "off":
-        is_auto_mode    = True
-        current_emotion = "off"
-        person_in_room  = False
-        bot_mqtt.publish(TOPIC_EMOTION, "off")
-        bot_mqtt.publish(TOPIC_PIR, "left")
-        bot_mqtt.publish(TOPIC_STATUS, "off")
-        bot_mqtt.publish("moodroom/mode", "auto")
-        await update.message.reply_text(
-            "🔴 Room turned off!\n"
-            "💡 LED: Off\n"
-            "🎵 Music: Stopped\n"
-            "💨 Fan: Off\n\n"
-            "🤖 Auto mode restored!"
-        )
-    else:
-        await update.message.reply_text("Usage: /room off")
+    is_auto_mode    = True
+    current_emotion = "..."
+    person_in_room  = False
+    bot_mqtt.publish(TOPIC_EMOTION, "off")
+    bot_mqtt.publish(TOPIC_PIR, "left")
+    bot_mqtt.publish(TOPIC_STATUS, "off")
+    bot_mqtt.publish("moodroom/mode", "auto")
+    await update.message.reply_text(
+        "🔴 Room turned off!\n"
+        "LED: Off\n"
+        "Music: Stopped\n"
+        "Fan: Off\n\n"
+        "Auto mode restored!"
+    )
 
 async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "📋 MoodRoom Commands\n"
+        "MoodRoom Commands\n"
         "──────────────────\n"
-        "🤖 Auto Mode:\n"
+        "1. Auto Mode:\n"
         "/auto — turn on auto mode\n"
         "/capture — force face scan\n"
         "/status — current room state\n\n"
-        "🎮 Manual Mode:\n"
-        "/play happy — switch to happy\n"
-        "/play sad — switch to sad\n"
-        "/play angry — switch to angry\n"
-        "/play fear — switch to fear\n"
-        "/play surprise — switch to surprise\n"
-        "/play neutral — switch to neutral\n\n"
-        "🔴 Control:\n"
-        "/room off — turn everything off\n"
+        "2. Manual Mode:\n"
+        "/play_happy\n"
+        "/play_sad\n"
+        "/play_angry\n"
+        "/play_fear\n"
+        "/play_surprise\n"
+        "/play_neutral\n\n"
+        "3. Control:\n"
+        "/room_off — turn everything off\n"
         "/help — show this message"
     )
 
-# ===== MAIN =====
 def main():
     setup_mqtt()
 
     app = Application.builder().token(BOT_TOKEN).build()
-    app.add_handler(CommandHandler("start",   start))
-    app.add_handler(CommandHandler("capture", capture))
-    app.add_handler(CommandHandler("status",  status))
-    app.add_handler(CommandHandler("play",    play))
-    app.add_handler(CommandHandler("room",    room_off))
-    app.add_handler(CommandHandler("auto",    auto))
-    app.add_handler(CommandHandler("help",    help_cmd))
+    app.add_handler(CommandHandler("start",         start))
+    app.add_handler(CommandHandler("capture",       capture))
+    app.add_handler(CommandHandler("status",        status))
+    app.add_handler(CommandHandler("auto",          auto))
+    app.add_handler(CommandHandler("room_off",      room_off))
+    app.add_handler(CommandHandler("play_happy",    play_happy))
+    app.add_handler(CommandHandler("play_sad",      play_sad))
+    app.add_handler(CommandHandler("play_angry",    play_angry))
+    app.add_handler(CommandHandler("play_fear",     play_fear))
+    app.add_handler(CommandHandler("play_surprise", play_surprise))
+    app.add_handler(CommandHandler("play_neutral",  play_neutral))
+    app.add_handler(CommandHandler("help",          help_cmd))
 
     print("MoodRoom Telegram bot running...")
     app.run_polling()

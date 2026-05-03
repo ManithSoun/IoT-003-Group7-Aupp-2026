@@ -1,0 +1,9 @@
+# .gitignore
+**/.env
+**/.cache
+**/.spotify_cache
+.cache
+
+__pycache__/
+*.pyc
+.DS_Storev

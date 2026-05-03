@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MoodRoom</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Nunito:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f5f2ee;
+        --surface: #fdfcfa;
+        --border: #e8e3dc;
+        --text: #2d2926;
+        --muted: #9b9289;
+        --mono: "IBM Plex Mono", monospace;
+        --happy: #f5c6a0;
+        --happy-t: #7a4010;
+        --sad: #a8c4e0;
+        --sad-t: #1a3a5c;
+        --angry: #f0a8a8;
+        --angry-t: #6b1a1a;
+        --fear: #c5b8e8;
+        --fear-t: #3d2566;
+        --surprise: #b8e0c8;
+        --surprise-t: #1a4d2e;
+        --neutral: #d4cfc8;
+        --neutral-t: #4a4540;
+        --waiting: #e8e3dc;
+        --waiting-t: #6b6560;
+        --off: #e0ddd8;
+        --off-t: #6b6560;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Nunito", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: radial-gradient(circle, #c8c0b4 1px, transparent 1px);
+        background-size: 28px 28px;
+        opacity: 0.35;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .app {
+        position: relative;
+        z-index: 1;
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 28px 24px;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 28px;
+      }
+      .brand {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+      }
+      .brand-name {
+        font-family: "Lora", serif;
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: -0.5px;
+      }
+      .brand-sub {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .header-pills {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .pill {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 100px;
+        font-size: 12px;
+        font-family: var(--mono);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--muted);
+      }
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+      .dot-on {
+        background: #7fbf9e;
+        animation: pulse 2s infinite;
+      }
+      .dot-off {
+        background: #e0a0a0;
+      }
+      .dot-auto {
+        background: #a0b8e0;
+        animation: pulse 1.5s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      #clock {
+        font-family: var(--mono);
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1.3fr 1fr;
+        gap: 16px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 20px;
+      }
+      .card-title {
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 16px;
+      }
+      .cam-card {
+        grid-row: span 2;
+      }
+      .cam-box {
+        width: 100%;
+        aspect-ratio: 4/3;
+        background: var(--bg);
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .cam-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        inset: 0;
+      }
+      .cam-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+      }
+      .cam-empty-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--border);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .cam-badge {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(253, 252, 250, 0.92);
+        border: 1px solid var(--border);
+        border-radius: 100px;
+        padding: 3px 10px;
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        z-index: 2;
+      }
+      .face-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(127, 191, 158, 0.15);
+        border: 1px solid rgba(127, 191, 158, 0.4);
+        border-radius: 100px;
+        padding: 3px 10px;
+        font-family: var(--mono);
+        font-size: 10px;
+        color: #3a7a5a;
+        z-index: 2;
+      }
+      .cam-connect {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .cam-connect input {
+        flex: 1;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 13px;
+        font-family: var(--mono);
+        color: var(--text);
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .cam-connect input:focus {
+        border-color: var(--text);
+      }
+      .cam-connect input::placeholder {
+        color: var(--muted);
+      }
+      .btn {
+        background: var(--text);
+        color: var(--surface);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-family: "Nunito", sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.15s;
+      }
+      .btn:hover {
+        opacity: 0.8;
+      }
+      .btn-off {
+        width: 100%;
+        margin-top: 8px;
+        background: var(--bg);
+        color: var(--angry-t);
+        border: 1px solid var(--angry);
+      }
+      .emotion-chip {
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 100px;
+        font-family: var(--mono);
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 12px;
+        transition: background 0.4s, color 0.4s;
+      }
+      .emotion-label {
+        font-family: "Lora", serif;
+        font-size: 32px;
+        font-weight: 600;
+        line-height: 1;
+        margin-bottom: 4px;
+        transition: color 0.4s;
+      }
+      .emotion-time {
+        font-family: var(--mono);
+        font-size: 11px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      .emotion-desc {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .conf-bar {
+        margin-top: 14px;
+        height: 3px;
+        background: var(--border);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .conf-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.6s ease, background 0.4s;
+      }
+      .conf-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 4px;
+      }
+      .conf-labels span {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .status-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 9px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .status-row:last-child {
+        border: none;
+        padding-bottom: 0;
+      }
+      .status-label {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .status-val {
+        font-family: var(--mono);
+        font-size: 11px;
+        padding: 3px 10px;
+        border-radius: 100px;
+        font-weight: 500;
+      }
+      .val-on {
+        background: rgba(127, 191, 158, 0.15);
+        color: #3a7a5a;
+        border: 1px solid rgba(127, 191, 158, 0.3);
+      }
+      .val-off {
+        background: var(--bg);
+        color: var(--muted);
+        border: 1px solid var(--border);
+      }
+      .comp-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+      .comp-item {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px;
+      }
+      .comp-label {
+        font-size: 11px;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+      .comp-value {
+        font-family: var(--mono);
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text);
+        transition: color 0.3s;
+      }
+      .song-row {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+      }
+      .song-disc {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: var(--border);
+        flex-shrink: 0;
+        position: relative;
+        overflow: hidden;
+        transition: background 0.4s;
+      }
+      .song-disc::after {
+        content: "";
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: var(--surface);
+        border: 2px solid var(--bg);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+      }
+      .disc-spin {
+        animation: spin 4s linear infinite;
+      }
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .song-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .song-name {
+        font-weight: 600;
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .song-artist {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .song-playlist {
+        font-family: var(--mono);
+        font-size: 10px;
+        margin-top: 5px;
+        color: var(--muted);
+      }
+      .prog-track {
+        margin-top: 14px;
+        height: 3px;
+        background: var(--border);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .prog-fill {
+        height: 100%;
+        border-radius: 2px;
+        background: var(--text);
+        transition: width 1s linear;
+      }
+      .prog-times {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 4px;
+      }
+      .prog-times span {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .mode-row {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 14px;
+      }
+      .mode-btn {
+        flex: 1;
+        padding: 8px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--muted);
+        font-size: 12px;
+        font-family: "Nunito", sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .mode-btn.active {
+        background: var(--text);
+        color: var(--surface);
+        border-color: var(--text);
+      }
+      .ctrl-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .ctrl-btn {
+        padding: 10px 6px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        color: var(--text);
+        font-size: 12px;
+        font-family: "Nunito", sans-serif;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-align: center;
+      }
+      .ctrl-btn:hover {
+        border-color: var(--text);
+      }
+      .ctrl-btn.e-happy {
+        background: var(--happy);
+        color: var(--happy-t);
+        border-color: var(--happy);
+      }
+      .ctrl-btn.e-sad {
+        background: var(--sad);
+        color: var(--sad-t);
+        border-color: var(--sad);
+      }
+      .ctrl-btn.e-angry {
+        background: var(--angry);
+        color: var(--angry-t);
+        border-color: var(--angry);
+      }
+      .ctrl-btn.e-fear {
+        background: var(--fear);
+        color: var(--fear-t);
+        border-color: var(--fear);
+      }
+      .ctrl-btn.e-surprise {
+        background: var(--surprise);
+        color: var(--surprise-t);
+        border-color: var(--surprise);
+      }
+      .ctrl-btn.e-neutral {
+        background: var(--neutral);
+        color: var(--neutral-t);
+        border-color: var(--neutral);
+      }
+      .full {
+        grid-column: 1 / -1;
+      }
+      .log-list {
+        max-height: 130px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+      }
+      .log-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 12px;
+        animation: fadeIn 0.2s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-3px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .log-item:last-child {
+        border: none;
+      }
+      .log-msg {
+        color: var(--text);
+      }
+      .log-t {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--muted);
+        flex-shrink: 0;
+        margin-left: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header>
+        <div class="brand">
+          <span class="brand-name">MoodRoom</span>
+          <span class="brand-sub">smart emotion controller</span>
+        </div>
+        <div class="header-pills">
+          <div class="pill">
+            <span class="dot dot-off" id="server-dot"></span
+            ><span id="server-status">connecting</span>
+          </div>
+          <div class="pill">
+            <span class="dot dot-auto" id="mode-dot"></span
+            ><span id="mode-label">auto</span>
+          </div>
+          <span id="clock">--:--:--</span>
+        </div>
+      </header>
+
+      <div class="grid">
+        <!-- Camera -->
+        <div class="card cam-card">
+          <div class="card-title">Camera feed</div>
+          <div class="cam-box" id="cam-box">
+            <div class="cam-empty" id="cam-empty">
+              <div class="cam-empty-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                >
+                  <path d="M23 7l-7 5 7 5V7z" />
+                  <rect x="1" y="5" width="15" height="14" rx="2" />
+                </svg>
+              </div>
+              <p style="font-size: 13px">No camera connected</p>
+              <p style="font-size: 11px">Enter ESP32-CAM IP below</p>
+            </div>
+            <div class="cam-badge">
+              <span class="dot dot-off" id="cam-dot"></span
+              ><span id="cam-status">offline</span>
+            </div>
+            <div class="face-badge" id="face-badge" style="display: none">
+              face detected
+            </div>
+          </div>
+          <div class="cam-connect">
+            <input id="cam-ip" placeholder="192.168.x.x — ESP32-CAM IP" />
+            <button class="btn" onclick="connectCamera()">Connect</button>
+          </div>
+        </div>
+
+        <!-- Emotion -->
+        <div class="card">
+          <div class="card-title">Detected emotion</div>
+          <div
+            class="emotion-chip"
+            id="emotion-chip"
+            style="background: var(--waiting); color: var(--waiting-t)"
+          >
+            waiting
+          </div>
+          <div
+            class="emotion-label"
+            id="emotion-label"
+            style="color: var(--waiting-t)"
+          >
+            Waiting...
+          </div>
+          <div class="emotion-time" id="emotion-time">-- : -- : --</div>
+          <div class="emotion-desc" id="emotion-desc">No one detected yet</div>
+          <div class="conf-bar">
+            <div class="conf-fill" id="conf-fill" style="width: 0%"></div>
+          </div>
+          <div class="conf-labels">
+            <span>confidence</span><span id="conf-pct">--</span>
+          </div>
+        </div>
+
+        <!-- Room status -->
+        <div class="card">
+          <div class="card-title">Room status</div>
+          <div class="status-row">
+            <span class="status-label">Door PIR</span>
+            <span class="status-val val-off" id="pir-door">no motion</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Room IR</span>
+            <span class="status-val val-off" id="pir-room">empty</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Person present</span>
+            <span class="status-val val-off" id="person-status">no</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">Last detected</span>
+            <span
+              style="
+                font-family: var(--mono);
+                font-size: 11px;
+                color: var(--muted);
+              "
+              id="last-detected"
+              >never</span
+            >
+          </div>
+        </div>
+
+        <!-- Components -->
+        <div class="card">
+          <div class="card-title">Components</div>
+          <div class="comp-grid">
+            <div class="comp-item">
+              <div class="comp-label">NeoPixel LED</div>
+              <div class="comp-value" id="led-val">off</div>
+            </div>
+            <div class="comp-item">
+              <div class="comp-label">Fan speed</div>
+              <div class="comp-value" id="fan-val">off</div>
+            </div>
+            <div class="comp-item">
+              <div class="comp-label">Buzzer</div>
+              <div class="comp-value" id="buzzer-val">silent</div>
+            </div>
+            <div class="comp-item">
+              <div class="comp-label">Display</div>
+              <div class="comp-value" id="display-val">standby</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Now playing -->
+        <div class="card">
+          <div class="card-title">Now playing</div>
+          <div class="song-row">
+            <div class="song-disc" id="song-disc"></div>
+            <div class="song-info">
+              <div class="song-name" id="song-name">Nothing playing</div>
+              <div class="song-artist" id="song-artist">--</div>
+              <div class="song-playlist" id="song-playlist">
+                no playlist active
+              </div>
+            </div>
+          </div>
+          <div class="prog-track">
+            <div class="prog-fill" id="song-prog" style="width: 0%"></div>
+          </div>
+          <div class="prog-times">
+            <span id="song-cur">0:00</span><span id="song-tot">0:00</span>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="card">
+          <div class="card-title">Manual control</div>
+          <div class="mode-row">
+            <button
+              class="mode-btn active"
+              id="btn-auto"
+              onclick="setMode('auto')"
+            >
+              Auto
+            </button>
+            <button
+              class="mode-btn"
+              id="btn-manual"
+              onclick="setMode('manual')"
+            >
+              Manual
+            </button>
+          </div>
+          <div class="ctrl-grid">
+            <button
+              class="ctrl-btn"
+              data-e="happy"
+              onclick="sendEmotion('happy')"
+            >
+              Happy
+            </button>
+            <button class="ctrl-btn" data-e="sad" onclick="sendEmotion('sad')">
+              Sad
+            </button>
+            <button
+              class="ctrl-btn"
+              data-e="angry"
+              onclick="sendEmotion('angry')"
+            >
+              Angry
+            </button>
+            <button
+              class="ctrl-btn"
+              data-e="fear"
+              onclick="sendEmotion('fear')"
+            >
+              Fear
+            </button>
+            <button
+              class="ctrl-btn"
+              data-e="surprise"
+              onclick="sendEmotion('surprise')"
+            >
+              Surprise
+            </button>
+            <button
+              class="ctrl-btn"
+              data-e="neutral"
+              onclick="sendEmotion('neutral')"
+            >
+              Neutral
+            </button>
+          </div>
+          <button class="btn btn-off" onclick="sendEmotion('off')">
+            Turn room off
+          </button>
+        </div>
+
+        <!-- Log -->
+        <div class="card full">
+          <div class="card-title">Activity log</div>
+          <div class="log-list" id="log-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const FLASK = "http://192.168.88.204:5001";
+
+      const EMOTIONS = {
+        "...": {
+          bg: "var(--waiting)",
+          fg: "var(--waiting-t)",
+          led: "Off",
+          fan: "Off",
+          buzzer: "Off",
+          desc: "No one detected yet",
+          playlist: "None",
+        },
+        off: {
+          bg: "var(--off)",
+          fg: "var(--off-t)",
+          led: "Off",
+          fan: "Off",
+          buzzer: "Off",
+          desc: "Room is off",
+          playlist: "None",
+        },
+        happy: {
+          bg: "var(--happy)",
+          fg: "var(--happy-t)",
+          led: "Yellow",
+          fan: "Slow",
+          buzzer: "3 beeps",
+          desc: "Room is joyful",
+          playlist: "Upbeat",
+        },
+        sad: {
+          bg: "var(--sad)",
+          fg: "var(--sad-t)",
+          led: "Blue",
+          fan: "Slow",
+          buzzer: "Long tone",
+          desc: "Room is calming",
+          playlist: "Lo-fi",
+        },
+        angry: {
+          bg: "var(--angry)",
+          fg: "var(--angry-t)",
+          led: "Red flash",
+          fan: "Fast",
+          buzzer: "Alarm",
+          desc: "Room is intense",
+          playlist: "Calm",
+        },
+        fear: {
+          bg: "var(--fear)",
+          fg: "var(--fear-t)",
+          led: "Purple",
+          fan: "Medium",
+          buzzer: "Rapid",
+          desc: "Room is soothing",
+          playlist: "Soothing",
+        },
+        surprise: {
+          bg: "var(--surprise)",
+          fg: "var(--surprise-t)",
+          led: "Rainbow",
+          fan: "Medium",
+          buzzer: "2 beeps",
+          desc: "Room is lively",
+          playlist: "Upbeat",
+        },
+        neutral: {
+          bg: "var(--neutral)",
+          fg: "var(--neutral-t)",
+          led: "Soft white",
+          fan: "Slow",
+          buzzer: "Silent",
+          desc: "Room is calm",
+          playlist: "Chill",
+        },
+      };
+
+      let currentEmotion = "...";
+      let isAutoMode = true;
+
+      function log(msg) {
+        const list = document.getElementById("log-list");
+        const el = document.createElement("div");
+        el.className = "log-item";
+        el.innerHTML = `<span class="log-msg">${msg}</span><span class="log-t">${new Date().toLocaleTimeString()}</span>`;
+        list.insertBefore(el, list.firstChild);
+        if (list.children.length > 30) list.removeChild(list.lastChild);
+      }
+
+      function updateEmotion(emotion) {
+        const d = EMOTIONS[emotion] || EMOTIONS["..."];
+
+        if (emotion !== currentEmotion) {
+          log(`Emotion: ${emotion === "..." ? "waiting" : emotion}`);
+        }
+        currentEmotion = emotion;
+
+        // Chip
+        document.getElementById("emotion-chip").style.background = d.bg;
+        document.getElementById("emotion-chip").style.color = d.fg;
+        document.getElementById("emotion-chip").textContent =
+          emotion === "..." ? "waiting" : emotion;
+
+        // Label
+        const label =
+          emotion === "..."
+            ? "Waiting..."
+            : emotion === "off"
+            ? "Room off"
+            : emotion.charAt(0).toUpperCase() + emotion.slice(1);
+        document.getElementById("emotion-label").textContent = label;
+        document.getElementById("emotion-label").style.color = d.fg;
+        document.getElementById("emotion-time").textContent =
+          new Date().toLocaleTimeString();
+        document.getElementById("emotion-desc").textContent = d.desc;
+
+        // Components
+        document.getElementById("led-val").textContent = d.led;
+        document.getElementById("fan-val").textContent = d.fan;
+        document.getElementById("buzzer-val").textContent = d.buzzer;
+        document.getElementById("song-playlist").textContent =
+          d.playlist === "None"
+            ? "no playlist active"
+            : d.playlist + " playlist";
+        document.getElementById("song-disc").style.background = d.bg;
+
+        // Active button
+        document.querySelectorAll(".ctrl-btn").forEach((b) => {
+          b.className = "ctrl-btn";
+          if (b.dataset.e === emotion) b.classList.add(`e-${emotion}`);
+        });
+      }
+
+      function updateRoom(present, door, room) {
+        const set = (id, on, textOn, textOff) => {
+          const el = document.getElementById(id);
+          el.textContent = on ? textOn : textOff;
+          el.className = "status-val " + (on ? "val-on" : "val-off");
+        };
+        set("pir-door", door, "motion", "no motion");
+        set("pir-room", room, "occupied", "empty");
+        set("person-status", present, "yes", "no");
+
+        if (present) {
+          document.getElementById("last-detected").textContent =
+            new Date().toLocaleTimeString();
+          document.getElementById("face-badge").style.display = "block";
+          document.getElementById("song-disc").classList.add("disc-spin");
+          document.getElementById("display-val").textContent = "active";
+        } else {
+          document.getElementById("face-badge").style.display = "none";
+          document.getElementById("song-disc").classList.remove("disc-spin");
+          document.getElementById("display-val").textContent = "standby";
+        }
+      }
+
+      function updateSong(name, artist, progressMs, durationMs) {
+        if (!name) return;
+        document.getElementById("song-name").textContent = name;
+        document.getElementById("song-artist").textContent = artist || "--";
+        if (durationMs > 0) {
+          document.getElementById("song-prog").style.width =
+            (progressMs / durationMs) * 100 + "%";
+          document.getElementById("song-cur").textContent = fmt(progressMs);
+          document.getElementById("song-tot").textContent = fmt(durationMs);
+        }
+      }
+
+      function fmt(ms) {
+        const s = Math.floor(ms / 1000);
+        return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+      }
+
+      function connectCamera() {
+        const ip = document.getElementById("cam-ip").value.trim();
+        if (!ip) return;
+
+        // Direct connection — not through Flask proxy
+        const url = `http://${ip}:81/stream`;
+        const box = document.getElementById("cam-box");
+        const empty = document.getElementById("cam-empty");
+        if (empty) empty.remove();
+
+        const img = document.createElement("img");
+        img.src = url;
+        img.style.cssText =
+          "width:100%;height:100%;object-fit:cover;position:absolute;inset:0;";
+        img.onerror = () => {
+          document.getElementById("cam-status").textContent = "failed";
+          document.getElementById("cam-dot").className = "dot dot-off";
+          log("Camera failed: " + ip);
+        };
+        box.insertBefore(img, box.firstChild);
+        document.getElementById("cam-status").textContent = "live";
+        document.getElementById("cam-dot").className = "dot dot-on";
+        log("Camera connected: " + ip);
+      }
+
+      function sendEmotion(emotion) {
+        fetch(`${FLASK}/control/emotion`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ emotion }),
+        })
+          .then((r) => r.json())
+          .then(() => {
+            updateEmotion(emotion);
+            if (emotion === "off") {
+              updateRoom(false, false, false);
+              document.getElementById("song-name").textContent =
+                "Nothing playing";
+              document.getElementById("song-artist").textContent = "--";
+              document.getElementById("song-prog").style.width = "0%";
+              document.getElementById("song-cur").textContent = "0:00";
+              document.getElementById("song-tot").textContent = "0:00";
+            }
+            log("Manual: " + emotion);
+          })
+          .catch(() => log("Error: server offline"));
+      }
+
+      function setMode(mode) {
+        fetch(`${FLASK}/control/mode`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode }),
+        })
+          .then((r) => r.json())
+          .then(() => {
+            isAutoMode = mode === "auto";
+            document
+              .getElementById("btn-auto")
+              .classList.toggle("active", isAutoMode);
+            document
+              .getElementById("btn-manual")
+              .classList.toggle("active", !isAutoMode);
+            document.getElementById("mode-label").textContent = mode;
+            document.getElementById("mode-dot").className = isAutoMode
+              ? "dot dot-auto"
+              : "dot dot-on";
+            log("Mode: " + mode);
+          })
+          .catch(() => log("Error: server offline"));
+      }
+
+      function pollServer() {
+        fetch(`${FLASK}/status`)
+          .then((r) => r.json())
+          .then((data) => {
+            document.getElementById("server-dot").className = "dot dot-on";
+            document.getElementById("server-status").textContent = "online";
+
+            // Always update emotion
+            if (data.emotion !== undefined) updateEmotion(data.emotion);
+
+            // Always update room status
+            updateRoom(
+              data.person_in_room || false,
+              data.pir_door || false,
+              data.pir_room || false
+            );
+
+            // Update song if playing
+            if (data.song) {
+              updateSong(
+                data.song,
+                data.artist,
+                data.progress_ms,
+                data.duration_ms
+              );
+            }
+
+            // Sync mode
+            if (
+              data.is_auto_mode !== undefined &&
+              data.is_auto_mode !== isAutoMode
+            ) {
+              isAutoMode = data.is_auto_mode;
+              document
+                .getElementById("btn-auto")
+                .classList.toggle("active", isAutoMode);
+              document
+                .getElementById("btn-manual")
+                .classList.toggle("active", !isAutoMode);
+              document.getElementById("mode-label").textContent = isAutoMode
+                ? "auto"
+                : "manual";
+              document.getElementById("mode-dot").className = isAutoMode
+                ? "dot dot-auto"
+                : "dot dot-on";
+            }
+          })
+          .catch(() => {
+            document.getElementById("server-dot").className = "dot dot-off";
+            document.getElementById("server-status").textContent = "offline";
+          });
+      }
+
+      // Init
+      setInterval(() => {
+        document.getElementById("clock").textContent =
+          new Date().toLocaleTimeString();
+      }, 1000);
+      setInterval(pollServer, 2000);
+      log("Dashboard started");
+      updateEmotion("...");
+      updateRoom(false, false, false);
+      pollServer();
+    </script>
+  </body>
+</html>

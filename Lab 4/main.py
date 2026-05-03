@@ -12,7 +12,7 @@ SSID     = "Roasters home"
 PASSWORD = "matcha520"
 
 # MQTT
-BROKER    = "broker.hivemq.com"
+MQTT_BROKER   = os.getenv("MQTT_BROKER")
 PORT      = 1883
 CLIENT_ID = b"esp32_multi_sensors"
 TOPIC     = b"/aupp/esp32/multi_sensors"

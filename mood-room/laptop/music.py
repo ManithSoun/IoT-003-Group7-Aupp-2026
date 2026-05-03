@@ -1,11 +1,14 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
-    client_id="5ac318686f3e4d229b1005bd6d8fdfe5",
-    client_secret="6876b6ea15e5406783035f8df4f86627",
-    redirect_uri="http://127.0.0.1:9999/callback",
+    client_id= os.getenv("SPOTIPY_CLIENT_ID"),
+    client_secret= os.getenv("SPOTIPY_CLIENT_SECRET"),
+    redirect_uri= os.getenv("SPOTIPY_REDIRECT_URI"),
     scope="user-modify-playback-state user-read-playback-state",
     open_browser=True,
     cache_path=".spotify_cache"
@@ -20,7 +23,7 @@ PLAYLISTS = {
     "fear":     "spotify:playlist:3yoKElJYbFz1B140ZqClCh",
 }
 
-current_playlist_emotion = None
+current_playlist_emotion = None 
 
 def play_playlist(emotion):
     global current_playlist_emotion
@@ -28,13 +31,13 @@ def play_playlist(emotion):
     print(f"play_playlist called: {emotion} (current: {current_playlist_emotion})")
 
     if emotion == current_playlist_emotion:
-        print(f"Same emotion — skipping")
+        print(f"Same — skipping")
         return
 
     try:
         devices = sp.devices()
         if not devices['devices']:
-            print("No active Spotify device!")
+            print("No Spotify device!")
             return
 
         device_id = devices['devices'][0]['id']
@@ -43,20 +46,21 @@ def play_playlist(emotion):
             try:
                 sp.pause_playback(device_id=device_id)
                 print("Paused!")
-            except:
-                # Free account — just reset tracking
-                print("Cannot pause — free account")
+            except Exception as e:
+                print(f"Cannot pause: {e}")
             current_playlist_emotion = None
             return
 
         playlist_uri = PLAYLISTS.get(emotion, PLAYLISTS["neutral"])
-        
-        # Play with shuffle so it's random every time!
         sp.shuffle(True, device_id=device_id)
         sp.start_playback(device_id=device_id, context_uri=playlist_uri)
-        
         current_playlist_emotion = emotion
-        print(f"Switched to: {emotion} playlist (shuffled)")
+        print(f"Playing: {emotion}")
 
     except Exception as e:
         print(f"Spotify error: {e}")
+
+def reset_playlist():
+    global current_playlist_emotion
+    current_playlist_emotion = None
+    print("Playlist reset!")
