@@ -49,8 +49,6 @@ Node B is the physical interaction layer that receives emotion commands and cont
 ### Actuators:
 | Component | Pin | Purpose |
 |---|---|---|
-| PIR sensor 1 | GPIO13 | Door detection |
-| PIR sensor 2 | GPIO12 | Room presence |
 | NeoPixel 24-LED | GPIO23 | Color lighting |
 | DC Motor ENA | GPIO14 | Fan speed |
 | DC Motor IN1 | GPIO26 | Fan direction |
