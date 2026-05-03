@@ -1,4 +1,4 @@
-# 🎭 MoodRoom — Smart Emotion-Based Environment System
+# MoodRoom: Smart Emotion-Based Environment System
 
 ## 1. Project Overview
 MoodRoom is a smart room system that detects a person's facial emotion using an ESP32-CAM and automatically adjusts the room environment in real time. Depending on the detected emotion, the system controls an RGB LED, a servo motor, a piezo buzzer, and a Spotify playlist to create an atmosphere that matches how the person feels.
