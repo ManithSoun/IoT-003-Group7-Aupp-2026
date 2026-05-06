@@ -1,9 +1,14 @@
-# .gitignore
-**/.env
-**/.cache
-**/.spotify_cache
-.cache
-
+# Python cache
 __pycache__/
 *.pyc
-.DS_Storev
+*.pyo
+
+# Spotify cache files
+laptop/.cache
+laptop/.spotify_cache
+
+# Root cache
+.cache
+
+# Environment and credentials
+laptop/.env
